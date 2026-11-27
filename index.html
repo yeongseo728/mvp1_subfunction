@@ -3363,7 +3363,7 @@ function renderCare(){
           '<button type="button" class="cr-cancel" data-cr="cancel">계약 완료 취소</button></div>' : '') + '</div>'
       : '<div class="card cr-intro"><b>계약을 마쳤나요?</b><p>계약 날짜를 넣으면 꼭 챙길 일정을 달력에 채워 드려요.</p><button type="button" class="cr-sign" data-cr="sign">계약 완료하고 일정 만들기</button></div>') +
     // 2026-11-28 C단계: 「집 관리」 카드 하나에 월세·관리비 · 방 사진 · 서류 보관함
-    '<div class="grp cr-home-g"><div class="card-t">집 관리</div><div class="card cr-home">' + homeRow('pay', '월세·관리비', payLine(today)) + homeRow('photo', '방 사진', photoLine()) + homeRow('docs', '서류 보관함', docLine()) + '</div></div>' +
+    '<div class="grp cr-home-g"><div class="card-t">우리집 관리</div><div class="card cr-home">' + homeRow('pay', '월세·관리비', payLine(today)) + homeRow('photo', '방 사진', photoLine()) + homeRow('docs', '서류 보관함', docLine()) + '</div></div>' +
     '<div class="grp">' + careCal(ev, today) + '</div>' +
     '<div class="grp"><div class="card-t">' + mdw(selDay) + ' 할 일' + (day.length ? '<small>' + day.length + '개</small>' : '') + '</div>' +
       '<div class="card">' + (day.length ? day.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">이날 일정이 없어요.</p>') + dayPhotos +
