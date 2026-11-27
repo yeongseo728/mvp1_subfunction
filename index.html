@@ -3067,6 +3067,8 @@ function renderCare(){
   const today = todayStr(), ev = careAll(), D = care.dates, S = care.signed && D;
   const left = ev.filter(e=>!careDone(e)), done = ev.filter(careDone);
   const up = careUpNext(left, today), past = left.filter(e=>e.date < today), day = ev.filter(e=>e.date === selDay);
+  // 2026-11-27 사용자 요청: 다가오는 할 일과 월세·관리비를 따로 (월세·관리비는 종류마다 다음 한 번)
+  const upTodo = up.filter(e=>!e.pay), upPay = up.filter(e=>e.pay);
   $('pc-body').innerHTML = '<div class="tab-top"></div>' +
     (S ? '<div class="cr-hero"><p class="cr-k">계약한 집</p><h2>' + esc(careHouseName()) + '</h2>' + careProg(today) + '<dl>' +
         [['계약일', D.contract], ['이삿날', D.move], ['만기일', D.end]].map(([k, s])=>'<dt>' + k + '</dt><dd>' + s.slice(0, 4) + '년 ' + mdw(s) + '</dd>').join('') + '</dl>' +
@@ -3078,9 +3080,11 @@ function renderCare(){
     '<div class="grp"><div class="card-t">' + mdw(selDay) + ' 할 일' + (day.length ? '<small>' + day.length + '개</small>' : '') + '</div>' +
       '<div class="card">' + (day.length ? day.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">이날 일정이 없어요.</p>') +
       '<button type="button" class="cr-add" data-cr="add">+ 이날 일정 추가</button></div></div>' +
-    '<div class="grp"><div class="card-t">다가오는 할 일<small>' + up.length + '개</small></div><div class="card">' +
-      (up.length ? up.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">' + (ev.length ? '남은 할 일이 없어요.' : '아직 일정이 없어요.') + '</p>') +
+    '<div class="grp"><div class="card-t">다가오는 할 일<small>' + upTodo.length + '개</small></div><div class="card">' +
+      (upTodo.length ? upTodo.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">' + (ev.length ? '남은 할 일이 없어요.' : '아직 일정이 없어요.') + '</p>') +
       (up.length ? '<button type="button" class="cr-add" data-cr="icsall">남은 할 일 모두 휴대폰 달력에 넣기</button>' : '') + '</div></div>' +
+    (upPay.length ? '<div class="grp"><div class="card-t">다가오는 월세·관리비<small>' + upPay.length + '개</small></div><div class="card">' +
+      upPay.map(e=>careItem(e, today)).join('') + '<button type="button" class="cr-add" data-cr="pay">납부 기록 보기</button></div></div>' : '') +
     (past.length ? '<details class="grp"><summary class="card-t">지난 일정 · 못 한 일<small>' + past.length + '개</small></summary><div class="card">' +
       past.slice().reverse().map(e=>careItem(e, today)).join('') + '</div></details>' : '') +
     (done.length ? '<details class="grp"><summary class="card-t">한 일<small>' + done.length + '개</small></summary><div class="card">' +
