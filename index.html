@@ -1319,6 +1319,7 @@
   .cr-dots{display:flex;gap:3px;height:6px}
   .cr-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand)}
   .cr-dot.own{background:#A9BFEF}
+  .cr-dot.rent{background:#16A35F} /* 월세 (2026-11-27 사용자 요청, 판단 색 예외) */
   .cr-dot.gray{background:#C3C9D3}
   .cr-key{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 16px;margin-top:8px;font-size:13px;line-height:20px;color:var(--ds-text-secondary)}
   .cr-key span{display:inline-flex;align-items:center;gap:6px}
@@ -2870,8 +2871,9 @@ function careCal(ev, today){
   for(let i = 0; i < first; i++) cells += '<span class="cr-d empty"></span>';
   for(let d = 1; d <= last; d++){
     const ds = calMonth + '-' + String(d).padStart(2, '0'), list = by[ds] || [], left = list.filter(e=>!careDone(e));
+    // 점 색: 꼭 챙길 일 로고 파랑 · 월세 초록(2026-11-27 사용자 요청) · 내 일정 연한 파랑 · 다 했으면 회색
     const dots = !list.length ? '' : !left.length ? '<i class="cr-dot gray"></i>' :
-      (left.some(e=>!e.own) ? '<i class="cr-dot"></i>' : '') + (left.some(e=>e.own) ? '<i class="cr-dot own"></i>' : '');
+      (left.some(e=>!e.own && e.pay !== 'rent') ? '<i class="cr-dot"></i>' : '') + (left.some(e=>e.pay === 'rent') ? '<i class="cr-dot rent"></i>' : '') + (left.some(e=>e.own) ? '<i class="cr-dot own"></i>' : '');
     const lbl = m + '월 ' + d + '일' + (ds === today ? ' 오늘' : '') + (list.length ? ', 일정 ' + list.length + '개' + (left.length ? ', 남은 일 ' + left.length + '개' : ', 모두 했어요') : '');
     cells += '<button type="button" class="cr-d' + (ds === today ? ' today' : '') + (ds === selDay ? ' sel' : '') + '" data-crday="' + ds + '" aria-label="' + lbl + '" aria-pressed="' + (ds === selDay) + '"><b>' + d + '</b><span class="cr-dots">' + dots + '</span></button>';
   }
@@ -2883,7 +2885,7 @@ function careCal(ev, today){
       '<button type="button" class="cr-today" data-crcal="0">오늘</button></div>' +
     '<div class="cr-w" aria-hidden="true">' + WEEK.map(w=>'<span>' + w + '</span>').join('') + '</div>' +
     '<div class="cr-g">' + cells + '</div>' +
-    '<p class="cr-key"><span><i class="cr-dot"></i>꼭 챙길 일</span><span><i class="cr-dot own"></i>내 일정</span><span><i class="cr-dot gray"></i>다 했어요</span></p></div>';
+    '<p class="cr-key"><span><i class="cr-dot"></i>꼭 챙길 일</span>' + (care.pay && care.pay.rent ? '<span><i class="cr-dot rent"></i>월세</span>' : '') + '<span><i class="cr-dot own"></i>내 일정</span><span><i class="cr-dot gray"></i>다 했어요</span></p></div>';
 }
 
 // 계약 진행 막대 (2026-11-27 A단계): 이삿날 → 오늘 → 만기, 남은 날
