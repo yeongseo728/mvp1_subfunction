@@ -1378,6 +1378,28 @@
   .cd-ics{display:block;width:100%;height:48px;margin-top:16px;border:1px solid var(--ds-divider);border-radius:14px;background:var(--card);font:inherit;font-size:15px;font-weight:600;color:var(--brand);cursor:pointer}
   .cd-del{display:block;margin:8px auto 0;min-height:44px;padding:0 8px;border:0;background:none;font:inherit;font-size:14px;font-weight:600;color:var(--ds-text-secondary);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
   .cd-ics:active,.cd-link:active,.cd-laws a:active{transform:scale(.96)}
+  /* 계약 케어 (2026-11-27): 할 일 칸은 이름 + D-day만 · 월세·관리비 (B단계) */
+  .cr-it{align-items:center}
+  .cr-it .cr-dt{align-self:center}
+  .cr-bd{display:flex;align-items:center;gap:8px;min-height:56px}
+  .cr-bt{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+  .cr-bd > svg{flex:none;width:18px;height:18px;color:#99A1B1}
+  .cr-pay{margin-top:16px;min-height:64px}
+  .cr-pay span{display:block;margin-top:2px;font-size:14px;font-weight:400;line-height:20px;color:var(--ds-text-secondary)}
+  .cr-pay b{font-size:16px;font-weight:600;color:var(--ds-text-strong)}
+  .cr-pay > div{flex:1;min-width:0}
+  .cr-pay > svg{flex:none;width:20px;height:20px;color:var(--brand)}
+  .cp-set{margin-top:12px;padding:12px 16px;border-radius:14px;background:var(--brand-50)}
+  .cp-set p{display:flex;justify-content:space-between;gap:8px;font-size:15px;line-height:24px}
+  .cp-set b{font-weight:600;color:var(--ds-text-strong)}
+  .cp-set span{color:var(--ds-text-primary)}
+  .cp-list{border:1px solid var(--ds-divider);border-radius:14px;overflow:hidden}
+  .cp-row{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:48px;padding:0 14px;font-size:15px;line-height:22px;color:var(--ds-text-primary)}
+  .cp-row + .cp-row{border-top:1px solid var(--ds-divider)}
+  .cp-ok{font-weight:600;color:var(--brand)}
+  .cp-no{font-weight:600;color:var(--ds-text-strong)}
+  .cp-wait{color:var(--ds-text-secondary)}
+  #crPay .ai-btn.sub{display:block;width:100%}
 </style>
 </head>
 <body>
@@ -1683,6 +1705,14 @@
         <p class="fh" style="padding-left:0">이름·주민번호·계좌번호는 적지 마세요. 이 휴대폰에만 저장돼요.</p>
         <p class="cr-err" id="ca-err" role="alert"></p>
         <div class="ai-row"><button type="button" class="ai-btn sub" id="ca-no">취소</button><button type="button" class="ai-btn fill" id="ca-ok">저장</button></div>
+      </div>
+    </div>
+
+    <!-- 계약 케어: 월세·관리비 설정 · 납부 기록 (2026-11-27 B단계) -->
+    <div class="modal" id="crPay" role="dialog" aria-modal="true" aria-labelledby="cp-t" hidden>
+      <div class="modal-box">
+        <h2 id="cp-t">월세·관리비</h2>
+        <div id="cp-body"></div>
       </div>
     </div>
 
@@ -2770,9 +2800,37 @@ function careEvents(){
   return ev;
 }
 // 자동 일정 + 내 일정, 날짜순 (같은 날은 위 순서대로)
+// 월세·관리비 (2026-11-27 B단계): care.pay = {rent:{amount, day}, fee:{amount, day}, since}, day = 1~28 또는 'end'(말일)
+// 낸 날짜는 care.paid[id] = 'YYYY-MM-DD'. 일정은 since(설정한 달 1일)와 이삿날 중 늦은 날부터 만기까지 매달 만들어요.
+const PAY_NAME = {rent:'월세', fee:'관리비'};
+const payDayTxt = d => d === 'end' ? '말일' : d + '일';
+const manWon = n => manTxt(n) + ' 원';
+function payDue(ym, day){ const [y, m] = ym.split('-').map(Number), last = new Date(y, m, 0).getDate(); return ym + '-' + String(day === 'end' ? last : Math.min(+day, last)).padStart(2, '0'); }
+function payRange(){
+  const P = care.pay || {}, today = todayStr();
+  const since = P.since || today.slice(0, 7) + '-01';
+  const from = care.dates && care.dates.move > since ? care.dates.move : since;
+  const to = care.dates ? care.dates.end : addMonths(today, 24);
+  return {from, to};
+}
+function payEvents(){
+  const P = care.pay; if(!P) return [];
+  const {from, to} = payRange(), ev = [];
+  ['rent','fee'].forEach(k=>{
+    const x = P[k]; if(!x || !(x.amount > 0)) return;
+    for(let ym = from.slice(0, 7); ym <= to.slice(0, 7); ym = addMonths(ym + '-01', 1).slice(0, 7)){
+      const date = payDue(ym, x.day); if(date < from || date > to) continue;
+      ev.push({id:k + '-' + ym, date, pay:k, tag:'매달 ' + payDayTxt(x.day), title:PAY_NAME[k] + ' 내기 · ' + manWon(x.amount),
+        desc:'매달 ' + payDayTxt(x.day) + '에 내요. 「냈어요」를 누르면 낸 날짜가 기록돼서 밀린 적 없다는 증거가 돼요.' +
+          (k === 'rent' ? ' 월세를 2번 치 밀린 적이 있으면 집주인이 재계약 요구를 거절할 수 있어요.' : ''),
+        law:k === 'rent' ? '주택임대차보호법 제6조의3' : ''});
+    }
+  });
+  return ev;
+}
 function careAll(){
   const own = (care.custom || []).map(c=>({id:c.id, date:c.date, title:c.title, desc:c.memo || '', tag:'내 일정', own:true}));
-  const ev = careEvents().concat(own), order = ev.map(e=>e.id);
+  const ev = careEvents().concat(payEvents(), own), order = ev.map(e=>e.id);
   return ev.sort((a,b)=>a.date.localeCompare(b.date) || order.indexOf(a.id) - order.indexOf(b.id));
 }
 // 일정 자세히 보기의 바로 가기와 법 원문 (2026-11-27 A단계). 주소는 2026-11-27에 열리는 것 확인
@@ -2794,16 +2852,14 @@ const careHouseName = () => { if(!care.signed) return ''; const h = houses.list.
 
 function careItem(e, today){
   const n = daysBetween(today, e.date), d = dObj(e.date), done = careDone(e);
-  const dd = done ? '<span class="cr-tag">했어요</span>' : n === 0 ? '<span class="cr-tag now">오늘</span>' : n > 0 ? '<span class="cr-tag' + (n <= 7 ? ' soon' : '') + '">D-' + n + '</span>' : '<span class="cr-tag">' + (-n) + '일 지남</span>';
+  const doneW = e.pay ? '냈어요' : '했어요';
+  const dd = done ? '<span class="cr-tag">' + doneW + '</span>' : n === 0 ? '<span class="cr-tag now">오늘</span>' : n > 0 ? '<span class="cr-tag' + (n <= 7 ? ' soon' : '') + '">D-' + n + '</span>' : '<span class="cr-tag">' + (-n) + '일 지남</span>';
+  // 2026-11-27: 글자를 줄이려고 카드에는 이름과 D-day만. 설명·법 근거·태그는 누르면 열리는 「일정 자세히 보기」 창에
   return '<div class="cr-it' + (done ? ' done' : n < 0 ? ' past' : '') + '">' +
     '<div class="cr-dt"><span>' + (e.date.slice(0, 4) !== today.slice(0, 4) ? e.date.slice(2, 4) + '년 ' : '') + (d.getMonth() + 1) + '월</span><b>' + d.getDate() + '</b><span>' + WEEK[d.getDay()] + '요일</span></div>' +
-    // 2026-11-27 A단계: 글 부분을 누르면 「일정 자세히 보기」 창이 열려요 (내 일정 지우기도 그 창에서)
-    '<button type="button" class="cr-bd" data-cropen="' + esc(e.id) + '"><span class="cr-tags">' + dd + (e.tag ? '<span class="cr-tag">' + esc(e.tag) + '</span>' : '') + '</span>' +
-    '<span class="cr-tt">' + esc(e.title) + '</span>' + (e.desc ? '<span class="cr-ds">' + esc(e.desc) + '</span>' : '') +
-    (e.law ? '<span class="cr-law">근거 · ' + esc(e.law) + '</span>' : e.tag === '권장' ? '<span class="cr-law">법 조항 없음 · 권장</span>' : '') +
-    '<span class="cr-more">자세히 보기</span></button>' +
-    '<button type="button" class="cr-ck" data-crdone="' + esc(e.id) + '" aria-pressed="' + done + '" aria-label="' + esc(e.title) + (done ? ' 했어요 취소' : ' 했어요로 표시') + '">' +
-      '<i aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>' + (done ? '했어요' : '할 일') + '</button></div>';
+    '<button type="button" class="cr-bd" data-cropen="' + esc(e.id) + '" aria-label="' + esc(e.title) + ' 자세히 보기"><span class="cr-bt"><span class="cr-tt">' + esc(e.title) + '</span>' + dd + '</span>' + ARROW + '</button>' +
+    '<button type="button" class="cr-ck" data-crdone="' + esc(e.id) + '" aria-pressed="' + done + '" aria-label="' + esc(e.title) + (done ? ' ' + doneW + ' 취소' : ' ' + doneW + '로 표시') + '">' +
+      '<i aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>' + (done ? doneW : '할 일') + '</button></div>';
 }
 
 function careCal(ev, today){
@@ -2847,8 +2903,12 @@ function careIcs(list){
   const ymd = s => s.replace(/-/g, ''), now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
   const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//zipkokcheck//contract-care//KO', 'CALSCALE:GREGORIAN'];
   list.forEach(e=>{
-    lines.push('BEGIN:VEVENT', 'UID:' + e.id + '-' + ymd(e.date) + '@zipkokcheck', 'DTSTAMP:' + now,
-      'DTSTART;VALUE=DATE:' + ymd(e.date), 'DTEND;VALUE=DATE:' + ymd(addDays(e.date, 1)),
+    // 월세·관리비는 매달 반복 일정 하나로 (만기 날까지). 말일은 BYMONTHDAY=-1
+    const x = e.pay && care.pay && care.pay[e.pay];
+    lines.push('BEGIN:VEVENT', 'UID:' + (x ? 'pay-' + e.pay : e.id + '-' + ymd(e.date)) + '@zipkokcheck', 'DTSTAMP:' + now,
+      'DTSTART;VALUE=DATE:' + ymd(e.date), 'DTEND;VALUE=DATE:' + ymd(addDays(e.date, 1)));
+    if(x) lines.push('RRULE:FREQ=MONTHLY;BYMONTHDAY=' + (x.day === 'end' ? -1 : x.day) + ';UNTIL=' + ymd(payRange().to));
+    lines.push(
       'SUMMARY:' + t('[집콕체크] ' + e.title), 'DESCRIPTION:' + t((e.desc || '') + (e.law ? '\n근거: ' + e.law : '')),
       'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + t(e.title), 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT');
   });
@@ -2869,8 +2929,10 @@ let crOpenId = null;
 function openCareDetail(id){
   const e = careAll().find(x=>x.id === id); if(!e) return;
   crOpenId = id;
-  const today = todayStr(), n = daysBetween(today, e.date), done = careDone(e), more = CARE_MORE[e.id] || {};
-  const when = done ? '했어요' : n === 0 ? '오늘' : n > 0 ? 'D-' + n : (-n) + '일 지남';
+  const today = todayStr(), n = daysBetween(today, e.date), done = careDone(e);
+  const more = CARE_MORE[e.id] || (e.pay === 'rent' ? {laws:[['주택임대차보호법','제6조의3']]} : {}), doneW = e.pay ? '냈어요' : '했어요';
+  const paidOn = e.pay && care.paid && care.paid[e.id];
+  const when = done ? (paidOn ? mdw(paidOn).replace(/ \(.\)/, '') + '에 냈어요' : doneW) : n === 0 ? '오늘' : n > 0 ? 'D-' + n : (-n) + '일 지남';
   $('cd-t').textContent = e.title;
   $('cd-body').innerHTML =
     '<p class="cd-when">' + e.date.slice(0, 4) + '년 ' + mdw(e.date) + '<span class="cr-tag' + (!done && n >= 0 && n <= 7 ? ' soon' : '') + '">' + when + '</span>' + (e.tag ? '<span class="cr-tag">' + esc(e.tag) + '</span>' : '') + '</p>' +
@@ -2878,23 +2940,29 @@ function openCareDetail(id){
     ((more.links || []).length ? '<p class="lk-l">바로 가기</p><div class="cd-links">' + more.links.map(k=>'<a class="cd-link" href="' + CARE_SITE[k][1] + '" target="_blank" rel="noopener">' + CARE_SITE[k][0] + ARROW + '</a>').join('') + '</div>' : '') +
     ((more.laws || []).length ? '<p class="lk-l">법 원문 <span class="opt-tag">국가법령정보센터</span></p><div class="cd-laws">' + more.laws.map(([nm, art])=>'<a href="' + lawUrl(nm, art) + '" target="_blank" rel="noopener">' + esc(lawName(nm) + ' ' + art) + ARROW + '</a>').join('') + '</div>'
       : e.tag === '권장' ? '<p class="fh" style="padding-left:0">법이 정한 의무는 아니고, 다툼을 막으려고 권하는 일이에요.</p>' : '') +
-    '<button type="button" class="cd-ics" data-cdo="ics">휴대폰 달력에 넣기</button>' +
+    '<button type="button" class="cd-ics" data-cdo="ics">' + (e.pay ? '휴대폰 달력에 매달 넣기' : '휴대폰 달력에 넣기') + '</button>' +
+    (e.pay ? '<button type="button" class="cd-del" data-cdo="pay">월세·관리비 설정·납부 기록</button>' : '') +
     (e.own ? '<button type="button" class="cd-del" data-cdo="del">이 일정 지우기</button>' : '');
-  $('cd-done').textContent = done ? '했어요 취소' : '했어요';
+  $('cd-done').textContent = done ? doneW + ' 취소' : doneW;
   $('cd-done').classList.toggle('sub', done); $('cd-done').classList.toggle('fill', !done);
   $('crDetail').hidden = false;
 }
 $('cd-x').addEventListener('click', ()=>{ $('crDetail').hidden = true; });
-$('cd-done').addEventListener('click', ()=>{
-  care.done = care.done || {};
-  if(care.done[crOpenId]) delete care.done[crOpenId]; else care.done[crOpenId] = true;
-  saveCare(); $('crDetail').hidden = true; renderCare();
-  toast(care.done[crOpenId] ? '했어요! 「한 일」로 옮겼어요.' : '다시 할 일로 돌렸어요.');
-});
+// 했어요/냈어요 켜고 끄기. 월세·관리비는 낸 날짜(오늘)를 care.paid에 남겨요
+function careToggle(id){
+  care.done = care.done || {}; care.paid = care.paid || {};
+  const on = !care.done[id], pay = /^(rent|fee)-/.test(id);
+  if(on){ care.done[id] = true; if(pay) care.paid[id] = todayStr(); }
+  else { delete care.done[id]; delete care.paid[id]; }
+  saveCare(); renderCare();
+  toast(on ? (pay ? '냈어요! 오늘 날짜로 기록했어요.' : '했어요! 「한 일」로 옮겼어요.') : '다시 할 일로 돌렸어요.');
+}
+$('cd-done').addEventListener('click', ()=>{ $('crDetail').hidden = true; careToggle(crOpenId); });
 $('cd-body').addEventListener('click', ev=>{
   const b = ev.target.closest('[data-cdo]'); if(!b) return;
   const e = careAll().find(x=>x.id === crOpenId); if(!e) return;
-  if(b.dataset.cdo === 'ics') careIcsSave([e], '집콕체크_' + e.title.replace(/[\\/:*?"<>|\s]+/g, '_'));
+  if(b.dataset.cdo === 'ics') careIcsSave([e], '집콕체크_' + (e.pay ? '매달_' + PAY_NAME[e.pay] : e.title.replace(/[\\/:*?"<>|\s]+/g, '_')));
+  if(b.dataset.cdo === 'pay'){ $('crDetail').hidden = true; openCarePay(); }
   if(b.dataset.cdo === 'del'){
     if(!confirm('「' + e.title + '」 일정을 지울까요?')) return;
     care.custom = (care.custom || []).filter(x=>x.id !== e.id);
@@ -2904,16 +2972,102 @@ $('cd-body').addEventListener('click', ev=>{
   }
 });
 
+// 「다가오는 할 일」: 오늘부터의 할 일. 월세·관리비는 다음 한 번만 (24개가 줄줄이 나오지 않게)
+function careUpNext(list, today){
+  const seen = {};
+  return list.filter(e=>e.date >= today && (!e.pay || (!seen[e.pay] && (seen[e.pay] = true))));
+}
+// 월세·관리비 입구 줄의 한 줄 요약
+function payLine(today){
+  if(!care.pay) return '매달 낼 날을 넣으면 달력에 넣어 드려요';
+  const ev = payEvents(), ym = today.slice(0, 7);
+  return ['rent','fee'].map(k=>{
+    const e = ev.find(x=>x.pay === k && x.date.slice(0, 7) === ym) || ev.find(x=>x.pay === k && x.date >= today);
+    if(!e) return '';
+    const md = (+e.date.slice(5, 7)) + '월 ' + (+e.date.slice(8)) + '일';
+    return PAY_NAME[k] + ' ' + md + (careDone(e) ? ' 냄' : e.date < today ? ' 안 냄' : '');
+  }).filter(Boolean).join(' · ') || '낼 날이 없어요';
+}
+// 월세·관리비 창 (2026-11-27 B단계): 설정이 없으면 입력, 있으면 납부 기록
+function openCarePay(form){
+  const P = care.pay, R = P && P.rent, F = P && P.fee;
+  const days = sel => Array.from({length:28}, (_, i)=>i + 1).concat(['end']).map(d=>'<option value="' + d + '"' + (String(sel) === String(d) ? ' selected' : '') + '>' + (d === 'end' ? '말일' : '매달 ' + d + '일') + '</option>').join('');
+  if(!P || form){
+    const rent = R ? R.amount : (care.money && care.money.rent > 0 ? care.money.rent : '');
+    $('cp-body').innerHTML =
+      '<label class="lk-l" for="cp-rent">월세 (만 원)</label><input class="lk-in" id="cp-rent" type="text" inputmode="numeric" autocomplete="off" value="' + rent + '">' +
+      '<label class="lk-l" for="cp-rday">월세 내는 날</label><select class="lk-in" id="cp-rday">' + days(R ? R.day : (care.dates ? +care.dates.move.slice(8) > 28 ? 'end' : +care.dates.move.slice(8) : 1)) + '</select>' +
+      '<label class="lk-l" for="cp-fee">관리비 (만 원) <span class="opt-tag">선택</span></label><input class="lk-in" id="cp-fee" type="text" inputmode="numeric" autocomplete="off" value="' + (F ? F.amount : '') + '">' +
+      '<label class="lk-l" for="cp-fday">관리비 내는 날</label><select class="lk-in" id="cp-fday"><option value="same">월세와 같은 날</option>' + days(F && R && F.day !== R.day ? F.day : '') + '</select>' +
+      '<p class="fh" style="padding-left:0">' + (care.dates ? '입주한 달부터 만기 달까지' : '앞으로 2년 동안') + ' 매달 달력에 넣어요. 이 휴대폰에만 저장돼요.</p>' +
+      '<p class="cr-err" id="cp-err" role="alert"></p>' +
+      '<div class="ai-row"><button type="button" class="ai-btn sub" data-cpo="' + (P ? 'back' : 'close') + '">취소</button><button type="button" class="ai-btn fill" data-cpo="save">저장</button></div>';
+  } else {
+    const today = todayStr(), endM = today.slice(0, 7) + '-31';
+    const rows = payEvents().filter(e=>e.date <= endM).sort((a,b)=>b.date.localeCompare(a.date) || (a.pay === 'rent' ? -1 : 1));
+    const st = e => { const p = care.paid && care.paid[e.id]; return careDone(e) ? '<span class="cp-ok">' + (p ? (+p.slice(5, 7)) + '월 ' + (+p.slice(8)) + '일 냄' : '냄') + '</span>' : e.date < today ? '<span class="cp-no">안 냄</span>' : '<span class="cp-wait">낼 날 ' + (+e.date.slice(5, 7)) + '월 ' + (+e.date.slice(8)) + '일</span>'; };
+    const first = payEvents()[0];
+    $('cp-body').innerHTML =
+      '<div class="cp-set">' + ['rent','fee'].filter(k=>P[k] && P[k].amount > 0).map(k=>'<p><b>' + PAY_NAME[k] + ' ' + manWon(P[k].amount) + '</b><span>' + (P[k].day === 'end' ? '매달 말일' : '매달 ' + P[k].day + '일') + '</span></p>').join('') + '</div>' +
+      '<button type="button" class="cd-ics" data-cpo="edit" style="margin-top:8px">금액·날짜 바꾸기</button>' +
+      '<p class="lk-l">납부 기록</p>' +
+      (rows.length ? '<div class="cp-list">' + rows.map(e=>'<div class="cp-row"><span>' + e.date.slice(0, 4) + '년 ' + (+e.date.slice(5, 7)) + '월 ' + PAY_NAME[e.pay] + '</span>' + st(e) + '</div>').join('') + '</div>'
+        : '<p class="cr-empty">' + (first ? '첫 납부일은 ' + first.date.slice(0, 4) + '년 ' + mdw(first.date) + '이에요.' : '낼 날이 없어요.') + '</p>') +
+      '<p class="fh" style="padding-left:0">「냈어요」를 누른 날짜로 기록돼요. 이체 확인증도 함께 남겨 두면 더 확실해요.</p>' +
+      (rows.length ? '<button type="button" class="cd-ics" data-cpo="copy">기록 복사하기</button>' : '') +
+      '<button type="button" class="cd-del" data-cpo="remove">월세·관리비 일정 지우기</button>' +
+      '<button type="button" class="ai-btn sub" data-cpo="close" style="margin-top:8px">닫기</button>';
+  }
+  $('crPay').hidden = false;
+  $('crPay').querySelector('.modal-box').scrollTop = 0;
+}
+$('cp-body').addEventListener('click', async ev=>{
+  const b = ev.target.closest('[data-cpo]'); if(!b) return;
+  const op = b.dataset.cpo;
+  if(op === 'close'){ $('crPay').hidden = true; return; }
+  if(op === 'back') return openCarePay();
+  if(op === 'edit') return openCarePay(true);
+  if(op === 'save'){
+    const err = m => { $('cp-err').textContent = m; };
+    const amt = id => { const s = $(id).value.replace(/[,\s]/g, ''); return s === '' ? null : num(s); };
+    const rent = amt('cp-rent'), fee = amt('cp-fee');
+    if(($('cp-rent').value.trim() && rent == null) || ($('cp-fee').value.trim() && fee == null)) return err('금액은 숫자로만 적어 주세요. (만 원 단위)');
+    if(!(rent > 0) && !(fee > 0)) return err('월세나 관리비 중 하나는 넣어 주세요.');
+    const rd = $('cp-rday').value, fd = $('cp-fday').value === 'same' ? rd : $('cp-fday').value;
+    const dv = v => v === 'end' ? 'end' : +v;
+    care.pay = {since:(care.pay && care.pay.since) || todayStr().slice(0, 7) + '-01', rent: rent > 0 ? {amount:rent, day:dv(rd)} : null, fee: fee > 0 ? {amount:fee, day:dv(fd)} : null};
+    saveCare(); renderCare(); openCarePay();
+    return toast('매달 일정을 달력에 넣었어요.');
+  }
+  if(op === 'copy'){
+    const today = todayStr(), endM = today.slice(0, 7) + '-31';
+    const rows = payEvents().filter(e=>e.date <= endM).sort((a,b)=>a.date.localeCompare(b.date));
+    const txt = '[집콕체크 납부 기록] ' + (careHouseName() || '내 계약') + '\n' + rows.map(e=>{
+      const p = care.paid && care.paid[e.id], amt = care.pay[e.pay].amount;
+      return e.date.slice(0, 7) + ' ' + PAY_NAME[e.pay] + ' ' + manWon(amt) + ' — ' + (careDone(e) ? (p ? p + ' 냄' : '냄') : e.date < today ? '안 냄' : '낼 날 ' + e.date);
+    }).join('\n') + '\n(날짜는 앱에서 「냈어요」를 누른 날이에요)';
+    return toast(await copyText(txt) ? '납부 기록을 복사했어요.' : '복사하지 못했어요.');
+  }
+  if(op === 'remove'){
+    if(!confirm('월세·관리비 일정과 납부 기록을 지울까요? 되돌릴 수 없어요.')) return;
+    delete care.pay;
+    ['done','paid'].forEach(k=>{ if(care[k]) Object.keys(care[k]).forEach(id=>{ if(/^(rent|fee)-/.test(id)) delete care[k][id]; }); });
+    saveCare(); $('crPay').hidden = true; renderCare();
+    toast('월세·관리비 일정을 지웠어요.');
+  }
+});
+
 function renderCare(){
   const today = todayStr(), ev = careAll(), D = care.dates, S = care.signed && D;
   const left = ev.filter(e=>!careDone(e)), done = ev.filter(careDone);
-  const up = left.filter(e=>e.date >= today), past = left.filter(e=>e.date < today), day = ev.filter(e=>e.date === selDay);
+  const up = careUpNext(left, today), past = left.filter(e=>e.date < today), day = ev.filter(e=>e.date === selDay);
   $('pc-body').innerHTML = '<div class="tab-top"></div>' +
     (S ? '<div class="cr-hero"><p class="cr-k">계약한 집</p><h2>' + esc(careHouseName()) + '</h2>' + careProg(today) + '<dl>' +
         [['계약일', D.contract], ['이삿날', D.move], ['만기일', D.end]].map(([k, s])=>'<dt>' + k + '</dt><dd>' + s.slice(0, 4) + '년 ' + mdw(s) + '</dd>').join('') + '</dl>' +
         '<div class="cr-act"><button type="button" class="cr-edit" data-cr="edit">날짜 고치기</button>' +
         '<button type="button" class="cr-cancel" data-cr="cancel">계약 완료 취소</button></div></div>'
       : '<div class="card cr-intro"><b>계약을 마쳤나요?</b><p>계약 날짜를 넣으면 꼭 챙길 일정을 달력에 채워 드려요.</p><button type="button" class="cr-sign" data-cr="sign">계약 완료하고 일정 만들기</button></div>') +
+    '<button type="button" class="guide-entry cr-pay" data-cr="pay"><div><b>월세·관리비</b><span>' + payLine(today) + '</span></div>' + ARROW + '</button>' +
     '<div class="grp">' + careCal(ev, today) + '</div>' +
     '<div class="grp"><div class="card-t">' + mdw(selDay) + ' 할 일' + (day.length ? '<small>' + day.length + '개</small>' : '') + '</div>' +
       '<div class="card">' + (day.length ? day.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">이날 일정이 없어요.</p>') +
@@ -2989,18 +3143,12 @@ $('ca-ok').addEventListener('click', ()=>{
   renderCare();
   toast(mdw(date) + '에 일정을 넣었어요.');
 });
-document.addEventListener('keydown', e=>{ if(e.key === 'Escape'){ $('crSignForm').hidden = true; $('crAddForm').hidden = true; $('crDetail').hidden = true; } });
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape'){ $('crSignForm').hidden = true; $('crAddForm').hidden = true; $('crDetail').hidden = true; $('crPay').hidden = true; } });
 
 $('pc').addEventListener('click', e=>{
   const t = e.target;
   const ck = t.closest('[data-crdone]');
-  if(ck){
-    const id = ck.dataset.crdone;
-    care.done = care.done || {};
-    if(care.done[id]) delete care.done[id]; else care.done[id] = true;
-    saveCare(); renderCare();
-    return toast(care.done[id] ? '했어요! 「한 일」로 옮겼어요.' : '다시 할 일로 돌렸어요.');
-  }
+  if(ck) return careToggle(ck.dataset.crdone);
   const op = t.closest('[data-cropen]');
   if(op) return openCareDetail(op.dataset.cropen);
   const day = t.closest('[data-crday]');
@@ -3015,7 +3163,8 @@ $('pc').addEventListener('click', e=>{
   const b = t.closest('[data-cr]'); if(!b) return;
   const act = b.dataset.cr;
   if(act === 'add') openCareAdd();
-  if(act === 'icsall') careIcsSave(careAll().filter(x=>!careDone(x) && x.date >= todayStr()), '집콕체크_계약케어_일정');
+  if(act === 'icsall') careIcsSave(careUpNext(careAll().filter(x=>!careDone(x)), todayStr()), '집콕체크_계약케어_일정'); // 월세·관리비는 매달 반복 일정 하나로
+  if(act === 'pay') openCarePay();
   if(act === 'sign') openCareSign('sign');
   if(act === 'edit') openCareSign('edit');
   if(act === 'cancel'){
