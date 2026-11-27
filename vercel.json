@@ -1,0 +1,21 @@
+{
+  "functions": {
+    "api/transcribe.mjs": { "maxDuration": 60 },
+    "api/talk.mjs": { "maxDuration": 60 },
+    "api/recommend.mjs": { "maxDuration": 60 }
+  },
+  "rewrites": [
+    { "source": "/ig", "destination": "/index.html" },
+    { "source": "/ig-story", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "microphone=(self), camera=(), geolocation=()" }
+      ]
+    }
+  ]
+}

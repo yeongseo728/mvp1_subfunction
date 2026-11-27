@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>개인정보 처리 안내 · 집콕체크</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<style>
+  :root{--bg:#F2F3F8;--card:#fff;--strong:#141A24;--text:#354153;--sub:#697383;--line:#E5E8EF;--blue:#0052E0}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--strong);font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;font-size:16px;line-height:1.65;word-break:keep-all;-webkit-font-smoothing:antialiased}
+  main{max-width:640px;margin:0 auto;padding:28px 16px 48px}
+  h1{font-size:24px;font-weight:700;line-height:34px}
+  .lead{margin-top:8px;color:var(--text)}
+  section{margin-top:18px;background:var(--card);border-radius:16px;padding:18px}
+  h2{font-size:17px;font-weight:600;line-height:26px}
+  p,li{color:var(--text);font-size:15px;line-height:24px}
+  p + p{margin-top:8px}
+  ul{margin-top:8px;padding-left:18px}
+  li + li{margin-top:6px}
+  table{width:100%;margin-top:10px;border-collapse:collapse;font-size:14px;line-height:22px}
+  th,td{text-align:left;vertical-align:top;padding:8px 6px;border-top:1px solid var(--line);color:var(--text)}
+  th{color:var(--strong);font-weight:600;white-space:nowrap}
+  a{color:var(--blue);font-weight:600}
+  .date{margin-top:20px;text-align:center;font-size:13px;color:var(--sub)}
+</style>
+</head>
+<body>
+<main>
+  <h1>개인정보 처리 안내</h1>
+  <p class="lead">집콕체크는 회원가입 없이 쓰는 서비스예요. 이름·연락처·이메일을 받지 않고, 적은 답은 사용자 기기 브라우저 안에만 저장해요. 아래 기능을 쓸 때만 필요한 내용이 바깥 서비스로 가요.</p>
+
+  <section>
+    <h2>1. 기기 안에만 저장하는 것</h2>
+    <p>체크리스트 답·금액·메모, AI 참고 의견, 현장 질문 체크, 받아 적은 대화 글과 분석 결과(최근 5개), 집 찾기 조건과 추천 결과, 동의 여부를 이 기기 브라우저 저장소에만 저장해요. 집콕체크 서버에는 저장하지 않아요.</p>
+    <p>시작 화면 맨 아래 「기록 모두 지우기」나 브라우저의 사이트 데이터 지우기로 언제든 지울 수 있어요.</p>
+  </section>
+
+  <section>
+    <h2>2. 기능을 쓸 때 바깥으로 보내는 것</h2>
+    <table>
+      <tr><th>기능</th><td>보내는 내용과 받는 곳</td></tr>
+      <tr><th>대화 녹음 분석</th><td>녹음 소리(약 100초 조각)와 받아 적은 글을 Google Gemini API로 보내요. 전화번호·주민등록번호·계좌번호·이메일처럼 보이는 글자는 가려서 보내요. 녹음 소리는 어디에도 저장하지 않아요.</td></tr>
+      <tr><th>실시간 받아쓰기·말로 적기</th><td>브라우저의 음성 인식 기능을 써요. 브라우저에 따라 말소리가 브라우저 회사 서버(예: Google, Apple)로 가서 글자로 바뀔 수 있어요.</td></tr>
+      <tr><th>집 찾기 추천</th><td>고른 조건(찾는 곳, 예산, 건물 종류, 원하는 점, 더 하고 싶은 말)과 동네별 거래 요약을 Google Gemini API로 보내요.</td></tr>
+      <tr><th>메모 AI로 살펴보기</th><td>그 질문의 메모(가린 것), 질문 문장, 관련 법률 목록을 Google Gemini API로 보내요.</td></tr>
+      <tr><th>중개사무소 등록 조회</th><td>고른 구, 적은 등록번호·상호를 국토교통부 브이월드로 보내요.</td></tr>
+      <tr><th>방문자 통계</th><td>Vercel 방문자 통계로 방문 수·들어온 곳·나라·기기 종류만 세요. 쿠키는 쓰지 않아요.</td></tr>
+    </table>
+    <p style="margin-top:10px">Google Gemini API로 보낸 내용은 Google의 약관에 따라 처리돼요. 무료 등급에서는 보낸 내용이 Google 서비스 개선에 쓰일 수 있어요. 집콕체크는 출시 전에 유료 등급으로 바꿀 예정이에요.</p>
+  </section>
+
+  <section>
+    <h2>3. 녹음할 때 지켜 주세요</h2>
+    <ul>
+      <li>내가 참여한 대화만 녹음하세요. 다른 사람끼리 나누는 대화를 몰래 녹음하면 법에 어긋나요(통신비밀보호법 제3조).</li>
+      <li>녹음하기 전에 상대에게 "기록용으로 녹음해도 될까요?"라고 알리면 오해가 없어요.</li>
+      <li>이름·주민등록번호·계좌번호는 받아 적은 글에서 지운 뒤 분석해 주세요.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. 안내</h2>
+    <p>집콕체크의 판단과 AI 의견은 참고용 안내이며 법률 자문이 아니에요. 이 안내를 바탕으로 한 결정과 그 결과에 대해 집콕체크는 책임지지 않아요. 중요한 결정 전에는 변호사·법무사 같은 전문가와 상담하세요.</p>
+    <p>문의: <a href="mailto:zipkokcheck@gmail.com">zipkokcheck@gmail.com</a></p>
+  </section>
+
+  <p class="date">2026년 11월 20일부터 적용 · <a href="/">집콕체크로 돌아가기</a></p>
+</main>
+</body>
+</html>
