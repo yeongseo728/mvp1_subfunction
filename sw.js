@@ -28,3 +28,20 @@ self.addEventListener('fetch', e => {
     }).catch(() => caches.match(key).then(hit => hit || (page ? caches.match('/') : Response.error())))
   );
 });
+
+// 계약 케어 알림 (2026-11-28): 서버가 보낸 알림을 보여 주고, 누르면 앱(계약 케어)을 열어요
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch(x) {}
+  e.waitUntil(self.registration.showNotification(d.title || '집콕체크', {
+    body: d.body || '', icon: '/icons/icon-192.png', badge: '/icons/icon-192.png', tag: d.tag || 'care', data: {url: d.url || '/'}
+  }));
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || '/';
+  e.waitUntil(self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(list => {
+    for(const c of list){ if('focus' in c) return c.focus(); }
+    return self.clients.openWindow(url);
+  }));
+});

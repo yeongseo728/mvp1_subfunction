@@ -1,0 +1,8 @@
+{
+  "name": "zipkokcheck",
+  "private": true,
+  "description": "집콕체크 서버 함수(api/)가 쓰는 도구 목록. 계약 케어 알림(api/push.mjs)이 web-push를 써요(2026-11-28 사용자와 정함).",
+  "dependencies": {
+    "web-push": "^3.6.7"
+  }
+}
