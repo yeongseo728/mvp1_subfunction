@@ -1470,8 +1470,12 @@
   .out-step b{display:block;font-size:16px;font-weight:600;line-height:24px;color:var(--ds-text-strong)}
   .out-step > span{display:block;margin:4px 0 10px;font-size:14px;line-height:22px;color:var(--ds-text-primary)}
   .out-step small{display:block;margin-top:8px;font-size:12px;line-height:18px;color:var(--ds-text-secondary)}
-  #pc details.cr-up > summary.card-t{cursor:pointer;min-height:44px;list-style:none}
-  .cr-later{padding:12px 16px;border-top:1px solid var(--ds-divider);font-size:14px;line-height:20px;color:var(--ds-text-secondary)}
+  .cr-later-d{border-top:1px solid var(--ds-divider)}
+  .cr-later-d > summary{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 16px;list-style:none;cursor:pointer;font-size:15px;font-weight:600;color:var(--ds-text-primary)}
+  .cr-later-d > summary::-webkit-details-marker{display:none}
+  .cr-later-d > summary svg{width:18px;height:18px;color:var(--ds-text-secondary);transition:transform .15s}
+  .cr-later-d[open] > summary svg{transform:rotate(180deg)}
+  .cr-later-d[open] > summary{border-bottom:1px solid var(--ds-divider)}
   .pv-img img{display:block;width:100%;max-height:56vh;object-fit:contain;border-radius:12px;background:#000}
 </style>
 </head>
@@ -3449,7 +3453,7 @@ function renderCare(){
   const up = careUpNext(left, today), past = left.filter(e=>e.date < today), day = ev.filter(e=>e.date === selDay);
   // 2026-11-27 사용자 요청: 다가오는 할 일과 월세·관리비를 따로 (월세·관리비는 종류마다 다음 한 번)
   const upTodo = up.filter(e=>!e.pay), upPay = up.filter(e=>e.pay);
-  const upSoon = upTodo.filter(e=>e.date <= addDays(today, 30)); // 한 달 안
+  const upSoon = upTodo.filter(e=>e.date <= addDays(today, 30)), upLater = upTodo.filter(e=>e.date > addDays(today, 30)); // 한 달 안 / 그 뒤
   // C단계: 고른 날 찍은 사진
   const dph = files.filter(f=>f.kind === 'photo' && f.taken.slice(0, 10) === selDay);
   const dayPhotos = dph.length ? '<div class="cr-dayph"><p>이날 찍은 사진 ' + dph.length + '장</p><div class="ph-grid">' + dph.map(thumb).join('') + '</div></div>' : '';
@@ -3471,11 +3475,12 @@ function renderCare(){
     // 순서: 고른 날(처음엔 오늘) 할 일 → 다가오는 월세·관리비 → 다가오는 할 일 (2026-11-28 사용자 요청)
     (upPay.length ? '<div class="grp"><div class="card-t">다가오는 월세·관리비<small>' + upPay.length + '개</small></div><div class="card">' +
       upPay.map(e=>careItem(e, today)).join('') + '<button type="button" class="cr-add" data-cr="pay">납부 기록 보기</button></div></div>' : '') +
-    // 2026-11-28 사용자 요청: 다가오는 할 일은 처음엔 접고, 오늘부터 한 달(30일) 안의 일정만 보여요. 그 뒤 일정은 달력에서 봐요
-    '<details class="grp cr-up"><summary class="card-t">다가오는 할 일<small>한 달 안 ' + upSoon.length + '개</small></summary><div class="card">' +
+    // 2026-11-28 사용자 요청: 오늘(앱을 여는 날)부터 한 달(30일) 안의 할 일은 바로 보이고, 그 뒤 할 일은 카드 아래 「한 달 뒤 할 일 n개」를 펼쳐야 보여요
+    '<div class="grp"><div class="card-t">다가오는 할 일<small>' + upTodo.length + '개</small></div><div class="card">' +
       (upSoon.length ? upSoon.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">' + (ev.length ? '한 달 안에 할 일이 없어요.' : '아직 일정이 없어요.') + '</p>') +
-      (upTodo.length > upSoon.length ? '<p class="cr-later">한 달 뒤 할 일 ' + (upTodo.length - upSoon.length) + '개는 달력에서 볼 수 있어요.</p>' : '') +
-      (up.length ? '<button type="button" class="cr-add" data-cr="icsall">남은 할 일 모두 휴대폰 달력에 넣기</button>' : '') + '</div></details>' +
+      (upLater.length ? '<details class="cr-later-d"><summary><span>한 달 뒤 할 일 ' + upLater.length + '개</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></summary>' +
+        upLater.map(e=>careItem(e, today)).join('') + '</details>' : '') +
+      (up.length ? '<button type="button" class="cr-add" data-cr="icsall">남은 할 일 모두 휴대폰 달력에 넣기</button>' : '') + '</div></div>' +
     (past.length ? '<details class="grp"><summary class="card-t">지난 일정 · 못 한 일<small>' + past.length + '개</small></summary><div class="card">' +
       past.slice().reverse().map(e=>careItem(e, today)).join('') + '</div></details>' : '') +
     (done.length ? '<details class="grp"><summary class="card-t">한 일<small>' + done.length + '개</small></summary><div class="card">' +
