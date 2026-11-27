@@ -2883,7 +2883,7 @@ function rentBack(){
 const CARE_KEY = 'jipkok-care';
 let care = {};
 try { care = JSON.parse(localStorage.getItem(CARE_KEY)) || {}; } catch(e) {}
-const saveCare = () => { try { localStorage.setItem(CARE_KEY, JSON.stringify(care)); } catch(e) {} };
+const saveCare = () => { try { localStorage.setItem(CARE_KEY, JSON.stringify(care)); } catch(e) {} queuePushSync(); }; // F단계 ②: 알림이 켜져 있으면 날짜 목록도 서버로
 
 const dObj = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
 const dStr = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -3396,6 +3396,24 @@ $('pout-body').addEventListener('click', e=>{
    아이폰은 홈 화면에 추가한 앱에서만 알림을 받을 수 있어서(iOS 16.4~), 그 밖에는 홈 화면 추가 안내를 보여 줘요.
    알림 주소(care.notify.sub)는 이 기기에만 두고, 테스트 알림 때만 api/push.mjs로 보내요. 매일 아침 자동 알림은 F단계 ②에서 더해요. */
 const BELL_KINDS = [['auto', '꼭 챙길 일'], ['pay', '월세·관리비'], ['own', '내 일정']];
+// F단계 ②: 서버로 보내는 날짜·종류 목록. 했어요·냈어요를 누른 일은 빼고, 오늘부터 400일 안, 고른 종류만.
+// k는 자동 일정 id(reg·movein…) · 'rent'/'fee' · 'own'(내 일정, 제목은 보내지 않아요). api/push.mjs의 KNAME과 같아야 해요.
+function pushItems(){
+  const k = Object.assign({auto:true, pay:true, own:true}, care.notify && care.notify.kinds), today = todayStr(), lim = addDays(today, 400);
+  return careAll().filter(e=>!careDone(e) && e.date >= today && e.date <= lim && (e.own ? k.own : e.pay ? k.pay : k.auto))
+    .map(e=>({d:e.date, k:e.own ? 'own' : (e.pay || e.id)})).slice(0, 300);
+}
+let pushT = null;
+function queuePushSync(){ if(!(care.notify && care.notify.on)) return; clearTimeout(pushT); pushT = setTimeout(syncPush, 1500); }
+async function pushPost(action, sub, items){
+  return fetch('/api/push', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(items ? {action, sub, items} : {action, sub})});
+}
+async function syncPush(){
+  if(!(care.notify && care.notify.on && care.notify.sub)) return;
+  // 휴대폰이 알림 주소를 바꿨으면 새 주소로
+  try { const reg = await swReady(3000), s = await reg.pushManager.getSubscription(); if(s){ const j = s.toJSON(); if(j.endpoint !== care.notify.sub.endpoint){ care.notify.sub = j; try { localStorage.setItem(CARE_KEY, JSON.stringify(care)); } catch(e) {} } } } catch(e) {}
+  try { await pushPost('sync', care.notify.sub, pushItems()); } catch(e) {}
+}
 const BELL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
 const notifyOn = () => !!(care.notify && care.notify.on);
 function pushEnv(){
@@ -3431,8 +3449,8 @@ function openBell(){
     h = '<p class="cd-desc">할 일 <b>전날과 당일 아침 9시쯤</b> 알려 드려요. 했어요·냈어요를 누른 일은 알리지 않아요.</p>' +
       '<p class="lk-l">알릴 것</p><div class="bell-kinds">' + BELL_KINDS.map(([id, n])=>'<label class="bell-k"><input type="checkbox" data-bellk="' + id + '"' + (k[id] !== false ? ' checked' : '') + '><span>' + n + '</span></label>').join('') + '</div>' +
       (on
-        ? '<button type="button" class="cd-ics" data-bello="test">테스트 알림 보내기</button>' +
-          '<p class="fh" style="padding-left:0">매일 아침 자동 알림은 곧 연결돼요(준비 중). 지금은 테스트 알림으로 휴대폰에 알림이 오는지 확인할 수 있어요.</p>' +
+        ? '<button type="button" class="cd-ics" data-bello="test">지금 알림 받아 보기</button>' +
+          '<p class="fh" style="padding-left:0">오늘·내일 할 일을 지금 한 번 보내 봐요(없으면 "알림이 잘 와요"). 매일 아침 9시쯤(9~10시 사이) 저절로 와요.</p>' +
           '<button type="button" class="cd-del" data-bello="off">알림 끄기</button>'
         : '<button type="button" class="cr-sign" data-bello="on" style="margin-top:16px">알림 켜기</button>' +
           '<p class="fh" style="padding-left:0">알림 받을 주소와 날짜·종류만 알림 서버에 보내요. 집 이름·금액·메모·내가 쓴 일정 제목은 보내지 않아요.</p>');
@@ -3454,13 +3472,16 @@ async function enableNotify(){
     const sub = (await reg.pushManager.getSubscription()) || await reg.pushManager.subscribe({userVisibleOnly:true, applicationServerKey:b64u(key)});
     care.notify = {on:true, kinds:(care.notify && care.notify.kinds) || {auto:true, pay:true, own:true}, sub:sub.toJSON()};
     saveCare(); renderCare(); openBell();
-    toast('알림을 켰어요.');
+    const r2 = await pushPost('sync', care.notify.sub, pushItems()).catch(()=>null);
+    toast(r2 && r2.ok ? '알림을 켰어요. 할 일 전날과 당일 아침에 알려 드릴게요.' : '알림을 켰어요. 날짜 목록은 다음에 앱을 열 때 다시 보낼게요.');
   } catch(e) {
     toast(e && e.message === 'key' ? '알림 서버 준비가 아직 안 됐어요.' : e && e.message === 'sw' ? '이 주소에서는 알림을 켤 수 없어요.' : '알림을 켜지 못했어요.');
     renderCare();
   }
 }
 async function disableNotify(){
+  const old = care.notify && care.notify.sub;
+  if(old){ try { await pushPost('off', old); } catch(e) {} }
   try { const reg = await swReady(3000); const s = await reg.pushManager.getSubscription(); if(s) await s.unsubscribe(); } catch(e) {}
   care.notify = Object.assign({}, care.notify, {on:false}); delete care.notify.sub;
   saveCare(); renderCare(); openBell(); toast('알림을 껐어요.');
@@ -3468,8 +3489,8 @@ async function disableNotify(){
 async function testNotify(){
   const sub = care.notify && care.notify.sub; if(!sub) return toast('먼저 알림을 켜 주세요.');
   try {
-    const r = await fetch('/api/push', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'test', sub})});
-    toast(r.ok ? '테스트 알림을 보냈어요. 잠시 뒤 휴대폰 위쪽을 확인해 보세요.' : '보내지 못했어요. 잠시 뒤 다시 해 주세요.');
+    const r = await pushPost('now', sub, pushItems());
+    toast(r.ok ? '알림을 보냈어요. 잠시 뒤 휴대폰 위쪽을 확인해 보세요.' : '보내지 못했어요. 잠시 뒤 다시 해 주세요.');
   } catch(e) { toast('보내지 못했어요. 인터넷 연결을 확인해 주세요.'); }
 }
 $('bell-x').addEventListener('click', ()=>{ $('crBell').hidden = true; });
@@ -5364,6 +5385,8 @@ function askAddHouse(name, from){
 $('wipeAll').addEventListener('click', ()=>{
   if(!confirm('모든 집의 답, 메모, AI 참고 의견, 현장 질문 체크, 대화 기록, 집 찾기 조건, 계약 케어 일정·사진·서류를 모두 지울까요? 지우면 되돌릴 수 없어요.')) return;
   clearAll();
+  // F단계 ②: 알림을 켜 두었으면 서버의 알림 기록도 지워요
+  if(care.notify && care.notify.sub){ pushPost('off', care.notify.sub).catch(()=>{}); swReady(3000).then(r=>r.pushManager.getSubscription()).then(s=>s && s.unsubscribe()).catch(()=>{}); }
   [VKEY, TKEY, FKEY, STORE, CARE_KEY].forEach(k=>{ try { localStorage.removeItem(k); } catch(e) {} });
   care = {};
   // C단계: 사진·서류 저장 공간도 지워요
@@ -5436,6 +5459,8 @@ paint(firstTab);
 show(firstTab);
 // C단계: 사진·서류 목록을 불러온 뒤 계약 케어를 다시 그려요
 loadFiles().then(()=>{ if(curView === 'pc') renderCare(); });
+// F단계 ②: 알림이 켜져 있으면 앱을 열 때마다 날짜 목록을 서버로 다시 보내요
+if(care.notify && care.notify.on) setTimeout(syncPush, 2000);
 // 오프라인 파일(sw.js): 앱으로 설치했을 때 인터넷이 잠깐 끊겨도 첫 화면이 열리게 (2026-11-21, 실제 사이트(https)에서만)
 if('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
