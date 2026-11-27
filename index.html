@@ -1409,6 +1409,43 @@
   .cp-no{font-weight:600;color:var(--ds-text-strong)}
   .cp-wait{color:var(--ds-text-secondary)}
   #crPay .ai-btn.sub{display:block;width:100%}
+  /* 계약 케어 C단계 (2026-11-28): 집 관리 카드 · 방 사진 · 서류 보관함 */
+  .cr-home-g{margin-top:16px}
+  .cr-home{padding:0}
+  .cr-hrow{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:10px 16px;border:0;background:none;font:inherit;text-align:left;cursor:pointer;transition:transform .1s}
+  .cr-hrow + .cr-hrow{border-top:1px solid var(--ds-divider)}
+  .cr-hrow:active{transform:scale(.96)}
+  .cr-hi{flex:none;width:40px;height:40px;border-radius:12px;background:var(--brand-50);color:var(--brand);display:grid;place-items:center}
+  .cr-hi svg{width:22px;height:22px}
+  .cr-ht{flex:1;min-width:0}
+  .cr-ht b{display:block;font-size:16px;font-weight:600;line-height:24px;color:var(--ds-text-strong)}
+  .cr-ht span{display:block;font-size:14px;font-weight:400;line-height:20px;color:var(--ds-text-secondary)}
+  .cr-hrow > svg{flex:none;width:20px;height:20px;color:#99A1B1}
+  .cr-seg{margin-top:12px}
+  .cr-seg small{display:block;font-size:12px;font-weight:400;color:var(--ds-text-secondary)}
+  .ph-tip{padding-left:4px}
+  .ph-card{margin-top:16px;padding:12px 14px 14px}
+  .ph-h{display:flex;align-items:center;gap:8px;min-height:32px;margin-bottom:8px}
+  .ph-h b{flex:1;font-size:16px;font-weight:600;color:var(--ds-text-strong)}
+  .ph-all{min-height:32px;padding:0 10px;border:1px solid var(--ds-divider);border-radius:10px;background:var(--card);font:inherit;font-size:13px;font-weight:600;color:var(--brand);cursor:pointer}
+  .ph-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .ph-cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .ph-cmp p{font-size:13px;font-weight:600;line-height:20px;color:var(--ds-text-secondary);margin-bottom:6px}
+  .ph-cmp .ph-grid{grid-template-columns:repeat(2,1fr)}
+  .ph-t,.ph-add{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:0;padding:0;background:var(--ds-gray-100,#EEF0F4);cursor:pointer;font:inherit}
+  .ph-t img{width:100%;height:100%;object-fit:cover;display:block}
+  .ph-t:active,.ph-add:active{transform:scale(.95)}
+  .ph-pdf{display:grid;place-items:center;height:62%;font-size:14px;font-weight:800;color:#B42318}
+  .ph-t small{display:block;padding:0 4px;font-size:11px;line-height:14px;color:var(--ds-text-primary);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .ph-add{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--brand-50);color:var(--brand);font-size:13px;font-weight:600}
+  .ph-add span{font-size:22px;line-height:22px}
+  .ph-none{grid-column:1/-1;font-size:13px;line-height:20px;color:var(--ds-text-secondary)}
+  .ph-slot-add{display:block;width:100%;min-height:48px;margin-top:16px;border:1px solid var(--ds-divider);border-radius:14px;background:var(--card);font:inherit;font-size:15px;font-weight:600;color:var(--brand);cursor:pointer}
+  #pdc .guide-entry{margin-top:12px}
+  .cr-dayph{padding:12px 16px 14px;border-top:1px solid var(--ds-divider)}
+  .cr-dayph p{font-size:14px;font-weight:600;line-height:20px;color:var(--ds-text-strong);margin-bottom:8px}
+  .pv-img{margin-top:12px}
+  .pv-img img{display:block;width:100%;max-height:56vh;object-fit:contain;border-radius:12px;background:#000}
 </style>
 </head>
 <body>
@@ -1459,6 +1496,16 @@
       <section class="view" id="pg" aria-label="계약 준비 가이드">
         <div class="nav"><button type="button" class="back" data-back aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>뒤로</button><span class="title">계약 준비 가이드</span><span></span></div>
         <div class="scroll" id="pg-body"></div>
+      </section>
+
+      <!-- 계약 케어 C단계 (2026-11-28): 방 사진 · 서류 보관함 -->
+      <section class="view" id="pph" aria-label="방 사진">
+        <div class="nav"><button type="button" class="back" data-back aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>뒤로</button><span class="title">방 사진</span><span></span></div>
+        <div class="scroll" id="pph-body"></div>
+      </section>
+      <section class="view" id="pdc" aria-label="서류 보관함">
+        <div class="nav"><button type="button" class="back" data-back aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>뒤로</button><span class="title">서류 보관함</span><span></span></div>
+        <div class="scroll" id="pdc-body"></div>
       </section>
 
       <!-- 1단계 집 찾기: 조건을 고르면 실거래로 어울리는 동네와 적정 가격을 AI가 추천해요 -->
@@ -1716,6 +1763,19 @@
         <div class="ai-row"><button type="button" class="ai-btn sub" id="ca-no">취소</button><button type="button" class="ai-btn fill" id="ca-ok">저장</button></div>
       </div>
     </div>
+
+    <!-- 계약 케어 C단계: 사진·서류 크게 보기 (2026-11-28) -->
+    <div class="modal" id="crPhoto" role="dialog" aria-modal="true" aria-labelledby="pv-t" hidden>
+      <div class="modal-box">
+        <h2 id="pv-t"></h2>
+        <p class="cd-when" id="pv-when"></p>
+        <div id="pv-img" class="pv-img"></div>
+        <button type="button" class="cd-ics" id="pv-save">사진첩에 저장</button>
+        <button type="button" class="cd-del" id="pv-del">지우기</button>
+        <button type="button" class="ai-btn sub" id="pv-x" style="display:block;width:100%;margin-top:8px">닫기</button>
+      </div>
+    </div>
+    <input type="file" id="crFileIn" multiple hidden>
 
     <!-- 계약 케어: 월세·관리비 설정 · 납부 기록 (2026-11-27 B단계) -->
     <div class="modal" id="crPay" role="dialog" aria-modal="true" aria-labelledby="cp-t" hidden>
@@ -2955,6 +3015,7 @@ function openCareDetail(id){
       : e.tag === '권장' ? '<p class="fh" style="padding-left:0">법이 정한 의무는 아니고, 다툼을 막으려고 권하는 일이에요.</p>' : '') +
     '<button type="button" class="cd-ics" data-cdo="ics">' + (e.pay ? '휴대폰 달력에 매달 넣기' : '휴대폰 달력에 넣기') + '</button>' +
     (e.pay ? '<button type="button" class="cd-del" data-cdo="pay">월세·관리비 설정·납부 기록</button>' : '') +
+    (e.id === 'photo' ? '<button type="button" class="cd-ics" data-cdo="photo" style="margin-top:8px">사진 찍으러 가기</button>' : '') +
     (e.own ? '<button type="button" class="cd-del" data-cdo="del">이 일정 지우기</button>' : '');
   $('cd-done').textContent = done ? doneW + ' 취소' : doneW;
   $('cd-done').classList.toggle('sub', done); $('cd-done').classList.toggle('fill', !done);
@@ -2976,6 +3037,7 @@ $('cd-body').addEventListener('click', ev=>{
   const e = careAll().find(x=>x.id === crOpenId); if(!e) return;
   if(b.dataset.cdo === 'ics') careIcsSave([e], '집콕체크_' + (e.pay ? '매달_' + PAY_NAME[e.pay] : e.title.replace(/[\\/:*?"<>|\s]+/g, '_')));
   if(b.dataset.cdo === 'pay'){ $('crDetail').hidden = true; openCarePay(); }
+  if(b.dataset.cdo === 'photo'){ $('crDetail').hidden = true; phPhase = 'in'; go('pph'); }
   if(b.dataset.cdo === 'del'){
     if(!confirm('「' + e.title + '」 일정을 지울까요?')) return;
     care.custom = (care.custom || []).filter(x=>x.id !== e.id);
@@ -2984,6 +3046,218 @@ $('cd-body').addEventListener('click', ev=>{
     toast('일정을 지웠어요.');
   }
 });
+
+/* ---------- 계약 케어 C단계: 방 사진 · 서류 보관함 (2026-11-28 사용자와 정함) ----------
+   사진·서류는 용량이 커서 이 기기 브라우저의 큰 저장 공간(IndexedDB 'jipkok-files', 저장소 'files')에만 넣어요. 서버로 보내지 않아요.
+   기록 모양: {id, kind:'photo'|'doc', phase:'in'|'live'|'out', slot, dtype, name, type, blob, thumb, w, h, taken:'YYYY-MM-DDTHH:MM', added}
+   사진은 긴 변 1600px(서류는 2200px) JPEG로 줄여 저장하고, 목록용 작은 그림(320px)을 따로 둬요.
+   「사진첩에 저장」은 오른쪽 아래에 "2026.11.28 14:05 · 입주 · 화장실" 글씨를 새긴 사본을 휴대폰 공유 창(안 되면 내려받기)으로 내보내요.
+   칸 이름: 벽·바닥 · 창문·방충망 · 화장실 · 주방·가전 · 현관·도어락(사용자가 「방 전체」는 빼기로 함) + 직접 추가한 칸(care.slots). */
+const FDB = 'jipkok-files';
+let fdbP = null, files = [], filesReady = false, fUrl = {};
+function fdb(){
+  return fdbP || (fdbP = new Promise((ok, no)=>{
+    const r = indexedDB.open(FDB, 1);
+    r.onupgradeneeded = ()=>r.result.createObjectStore('files', {keyPath:'id'});
+    r.onsuccess = ()=>ok(r.result); r.onerror = ()=>no(r.error);
+  }));
+}
+async function fAll(){ const db = await fdb(); return new Promise((ok, no)=>{ const r = db.transaction('files').objectStore('files').getAll(); r.onsuccess = ()=>ok(r.result || []); r.onerror = ()=>no(r.error); }); }
+async function fPut(rec){ const db = await fdb(); return new Promise((ok, no)=>{ const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').put(rec); tx.oncomplete = ()=>ok(); tx.onerror = tx.onabort = ()=>no(tx.error); }); }
+async function fDel(id){ const db = await fdb(); return new Promise((ok, no)=>{ const tx = db.transaction('files', 'readwrite'); tx.objectStore('files').delete(id); tx.oncomplete = ()=>ok(); tx.onerror = tx.onabort = ()=>no(tx.error); }); }
+async function loadFiles(){ try { files = await fAll(); } catch(e){ files = []; } filesReady = true; }
+const thumbUrl = f => fUrl[f.id] || (fUrl[f.id] = URL.createObjectURL(f.thumb || f.blob));
+
+const PH_PHASE = [['in','입주'], ['live','사는 동안'], ['out','퇴실']];
+const PH_SLOTS = [['wall','벽·바닥'], ['window','창문·방충망'], ['bath','화장실'], ['kitchen','주방·가전'], ['door','현관·도어락']];
+const DOC_TYPES = [['contract','계약서'], ['special','특약'], ['fee','중개보수 영수증'], ['move','확정일자·전입신고'], ['reg','등기부'], ['etc','기타']];
+const phSlots = () => PH_SLOTS.concat((care.slots || []).map(s=>[s.id, s.name]));
+const nameOf = (list, k) => (list.find(x=>x[0] === k) || ['', ''])[1];
+const fLabel = f => f.kind === 'photo' ? nameOf(PH_PHASE, f.phase) + ' · ' + nameOf(phSlots(), f.slot) : nameOf(DOC_TYPES, f.dtype);
+const hhmm = d => String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+const takenTxt = t => t.slice(0, 10).replace(/-/g, '.') + ' ' + t.slice(11, 16);
+let phPhase = 'in', fPending = null, pvId = null, pvUrl = null;
+
+function loadImg(url){ return new Promise((ok, no)=>{ const i = new Image(); i.onload = ()=>ok(i); i.onerror = no; i.src = url; }); }
+async function shrink(file, max){
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await loadImg(url), k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return {blob: await new Promise(ok=>c.toBlob(ok, 'image/jpeg', .82)), w:c.width, h:c.height};
+  } finally { URL.revokeObjectURL(url); }
+}
+async function addFiles(list, meta){
+  const first = !files.length;
+  let n = 0;
+  for(const file of list){
+    try {
+      const d = new Date(file.lastModified || Date.now());
+      const rec = Object.assign({id:'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), taken:dStr(d) + 'T' + hhmm(d), added:dStr(new Date()) + 'T' + hhmm(new Date()), name:file.name || ''}, meta);
+      if(file.type === 'application/pdf'){
+        if(file.size > 20 * 1024 * 1024){ toast('20MB보다 큰 PDF는 넣을 수 없어요.'); continue; }
+        rec.type = 'application/pdf'; rec.blob = file;
+      } else {
+        const big = await shrink(file, meta.kind === 'doc' ? 2200 : 1600), sm = await shrink(file, 320);
+        rec.type = 'image/jpeg'; rec.blob = big.blob; rec.thumb = sm.blob; rec.w = big.w; rec.h = big.h;
+      }
+      await fPut(rec); files.push(rec); n++;
+    } catch(e){}
+  }
+  // 처음 넣을 때 브라우저에 "지우지 말아 주세요"를 요청해요(허락 여부는 브라우저가 정해요)
+  if(first && n && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+  return n;
+}
+function pickFiles(meta, accept){
+  fPending = meta;
+  const inp = $('crFileIn'); inp.value = ''; inp.accept = accept; inp.click();
+}
+$('crFileIn').addEventListener('change', async e=>{
+  const list = [...e.target.files]; if(!list.length || !fPending) return;
+  const meta = fPending, firstEver = !files.length; fPending = null;
+  toast('저장하는 중이에요…');
+  const n = await addFiles(list, meta);
+  rerenderFiles();
+  toast(n ? (firstEver ? n + '개 저장했어요. 사진첩에도 저장해 두면 더 안전해요.' : n + '개 저장했어요.') : '저장하지 못했어요.');
+});
+function rerenderFiles(){ if(curView === 'pph') renderPhotos(); else if(curView === 'pdc') renderDocs(); else if(curView === 'pc') renderCare(); }
+
+// 날짜 글씨를 새긴 사본 만들기 (사진첩·내려받기용). PDF는 그대로
+async function stampFile(f){
+  const base = 'zipkokcheck_' + f.taken.replace(/[-:T]/g, '');
+  if(f.type !== 'image/jpeg') return new File([f.blob], (f.name || base + '.pdf'), {type:f.type});
+  const url = URL.createObjectURL(f.blob);
+  try {
+    const img = await loadImg(url), c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+    const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+    const fs = Math.max(14, Math.round(Math.min(c.width, c.height) * .035)), pad = Math.round(fs * .5);
+    const txt = takenTxt(f.taken) + ' · ' + fLabel(f);
+    g.font = '600 ' + fs + 'px "Pretendard Variable","Pretendard","Apple SD Gothic Neo","Noto Sans KR",sans-serif';
+    const w = g.measureText(txt).width;
+    g.fillStyle = 'rgba(20,26,36,.6)'; g.fillRect(c.width - w - pad * 3, c.height - fs - pad * 3, w + pad * 2, fs + pad * 2);
+    g.fillStyle = '#fff'; g.textBaseline = 'middle'; g.fillText(txt, c.width - w - pad * 2, c.height - pad * 2 - fs / 2);
+    return new File([await new Promise(ok=>c.toBlob(ok, 'image/jpeg', .9))], base + '.jpg', {type:'image/jpeg'});
+  } finally { URL.revokeObjectURL(url); }
+}
+async function exportFiles(list){
+  if(!list.length) return;
+  const out = await Promise.all(list.map(stampFile));
+  if(navigator.canShare && navigator.canShare({files:out})){
+    try { await navigator.share({files:out}); return; } catch(e){ if(e && e.name === 'AbortError') return; }
+  }
+  out.forEach(file=>{ const u = URL.createObjectURL(file), a = document.createElement('a'); a.href = u; a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u), 4000); });
+  toast(out.length + '개를 내려받았어요.');
+}
+
+const thumb = f => '<button type="button" class="ph-t" data-pv="' + f.id + '" aria-label="' + esc(fLabel(f) + ' ' + takenTxt(f.taken)) + '">' +
+  (f.type === 'application/pdf' ? '<span class="ph-pdf">PDF</span><small>' + esc(f.name || 'PDF') + '</small>' : '<img src="' + thumbUrl(f) + '" alt="">') + '</button>';
+const addTile = (attrs, txt) => '<button type="button" class="ph-add" ' + attrs + '><span aria-hidden="true">+</span>' + txt + '</button>';
+async function fileNote(){
+  const p = files.filter(f=>f.kind === 'photo').length, d = files.filter(f=>f.kind === 'doc').length;
+  let used = '';
+  try { if(navigator.storage && navigator.storage.estimate){ const e = await navigator.storage.estimate(); used = ' · 약 ' + Math.max(1, Math.round((e.usage || 0) / 1048576)) + 'MB'; } } catch(e){}
+  return '<p class="cr-foot">사진 ' + p + '장 · 서류 ' + d + '개' + used + '. 이 휴대폰 안에만 있어서, 브라우저 기록을 지우거나 휴대폰을 바꾸면 사라져요. 사진첩에도 저장해 두세요. 홈 화면에 추가해서 쓰면 더 안전해요.</p>';
+}
+
+// 방 사진 화면
+async function renderPhotos(){
+  const box = $('pph-body');
+  if(!filesReady){ box.innerHTML = '<p class="cr-empty">불러오는 중이에요…</p>'; await loadFiles(); }
+  const ph = files.filter(f=>f.kind === 'photo').sort((a,b)=>a.taken.localeCompare(b.taken));
+  const of = (phase, slot) => ph.filter(f=>f.phase === phase && f.slot === slot);
+  const tip = {in:'들어간 날, 원래 있던 흠집과 곰팡이를 칸마다 찍어 두세요.', live:'고장이나 곰팡이가 생기면 찍어 두세요.', out:'나가기 전에 같은 칸을 찍으면 입주 사진과 나란히 보여요.'}[phPhase];
+  box.innerHTML = '<div class="seg cr-seg" role="tablist" aria-label="언제 찍은 사진">' + PH_PHASE.map(([k, n])=>'<button type="button" role="tab" data-php="' + k + '" class="' + (k === phPhase ? 'on' : '') + '" aria-selected="' + (k === phPhase) + '">' + n + '<small>' + ph.filter(f=>f.phase === k).length + '</small></button>').join('') + '</div>' +
+    '<p class="fh ph-tip">' + tip + '</p>' +
+    phSlots().map(([k, n])=>{
+      const mine = of(phPhase, k), custom = !PH_SLOTS.some(s=>s[0] === k);
+      const head = '<div class="ph-h"><b>' + esc(n) + '</b>' + (mine.length > 1 ? '<button type="button" class="ph-all" data-phall="' + k + '">모두 사진첩에 저장</button>' : '') +
+        (custom && !ph.some(f=>f.slot === k) ? '<button type="button" class="ph-all" data-phdel="' + k + '">칸 지우기</button>' : '') + '</div>';
+      const add = addTile('data-phadd="' + k + '"', '사진');
+      if(phPhase === 'out'){
+        const before = of('in', k);
+        return '<div class="card ph-card">' + head + '<div class="ph-cmp"><div><p>입주 때</p><div class="ph-grid">' + (before.length ? before.map(thumb).join('') : '<span class="ph-none">입주 사진 없음</span>') + '</div></div>' +
+          '<div><p>지금(퇴실)</p><div class="ph-grid">' + mine.map(thumb).join('') + add + '</div></div></div></div>';
+      }
+      return '<div class="card ph-card">' + head + '<div class="ph-grid">' + mine.map(thumb).join('') + add + '</div></div>';
+    }).join('') +
+    '<button type="button" class="ph-slot-add" data-phnew>+ 칸 추가</button>' + await fileNote();
+}
+// 서류 보관함 화면
+async function renderDocs(){
+  const box = $('pdc-body');
+  if(!filesReady){ box.innerHTML = '<p class="cr-empty">불러오는 중이에요…</p>'; await loadFiles(); }
+  const docs = files.filter(f=>f.kind === 'doc').sort((a,b)=>a.added.localeCompare(b.added));
+  const h = care.signed && houses.list.find(x=>x.id === care.signed.house);
+  box.innerHTML = (h || !blankHouse(house) ? '<button type="button" class="guide-entry" data-dcfinal><div><b>계약 전 최종 정리 보기</b><span>체크리스트 결과 · 특약</span></div>' + ARROW + '</button>' : '') +
+    DOC_TYPES.map(([k, n])=>{
+      const mine = docs.filter(f=>f.dtype === k);
+      return '<div class="card ph-card"><div class="ph-h"><b>' + n + '</b>' + (mine.length > 1 ? '<button type="button" class="ph-all" data-dcall="' + k + '">모두 휴대폰에 저장</button>' : '') + '</div>' +
+        '<div class="ph-grid">' + mine.map(thumb).join('') + addTile('data-dcadd="' + k + '"', '넣기') + '</div></div>';
+    }).join('') + await fileNote();
+}
+$('pph-body').addEventListener('click', e=>{
+  const t = e.target;
+  const p = t.closest('[data-php]'); if(p){ phPhase = p.dataset.php; return renderPhotos(); }
+  const a = t.closest('[data-phadd]'); if(a) return pickFiles({kind:'photo', phase:phPhase, slot:a.dataset.phadd}, 'image/*');
+  const all = t.closest('[data-phall]'); if(all) return exportFiles(files.filter(f=>f.kind === 'photo' && f.phase === phPhase && f.slot === all.dataset.phall));
+  const del = t.closest('[data-phdel]');
+  if(del){ care.slots = (care.slots || []).filter(s=>s.id !== del.dataset.phdel); saveCare(); return renderPhotos(); }
+  if(t.closest('[data-phnew]')){
+    const n = (prompt('새 칸 이름을 적어 주세요. 예) 베란다') || '').trim().slice(0, 12); if(!n) return;
+    (care.slots = care.slots || []).push({id:'s' + Date.now().toString(36), name:n}); saveCare(); return renderPhotos();
+  }
+  const v = t.closest('[data-pv]'); if(v) openViewer(v.dataset.pv);
+});
+$('pdc-body').addEventListener('click', e=>{
+  const t = e.target;
+  if(t.closest('[data-dcfinal]')){ if(care.signed && houses.list.some(x=>x.id === care.signed.house)) useHouse(care.signed.house); return go('pz'); }
+  const a = t.closest('[data-dcadd]'); if(a) return pickFiles({kind:'doc', dtype:a.dataset.dcadd}, 'image/*,application/pdf');
+  const all = t.closest('[data-dcall]'); if(all) return exportFiles(files.filter(f=>f.kind === 'doc' && f.dtype === all.dataset.dcall));
+  const v = t.closest('[data-pv]'); if(v) openViewer(v.dataset.pv);
+});
+
+// 사진·서류 크게 보기
+function openViewer(id){
+  const f = files.find(x=>x.id === id); if(!f) return;
+  pvId = id; if(pvUrl) URL.revokeObjectURL(pvUrl); pvUrl = URL.createObjectURL(f.blob);
+  $('pv-t').textContent = fLabel(f);
+  $('pv-when').textContent = (f.kind === 'photo' ? '찍은 날 ' : '넣은 날 ') + takenTxt(f.kind === 'photo' ? f.taken : f.added);
+  $('pv-img').innerHTML = f.type === 'application/pdf'
+    ? '<a class="cd-link" href="' + pvUrl + '" target="_blank" rel="noopener">PDF 열기 · ' + esc(f.name || '') + ARROW + '</a>'
+    : '<img src="' + pvUrl + '" alt="' + esc(fLabel(f)) + '">';
+  $('pv-save').textContent = f.kind === 'photo' ? '사진첩에 저장' : '휴대폰에 저장';
+  $('crPhoto').hidden = false;
+}
+function closeViewer(){ $('crPhoto').hidden = true; if(pvUrl){ URL.revokeObjectURL(pvUrl); pvUrl = null; } }
+$('pv-x').addEventListener('click', closeViewer);
+$('pv-save').addEventListener('click', ()=>{ const f = files.find(x=>x.id === pvId); if(f) exportFiles([f]); });
+$('pv-del').addEventListener('click', async ()=>{
+  const f = files.find(x=>x.id === pvId); if(!f || !confirm('이 ' + (f.kind === 'photo' ? '사진' : '서류') + '을 지울까요? 되돌릴 수 없어요.')) return;
+  try { await fDel(f.id); } catch(e){ return toast('지우지 못했어요.'); }
+  files = files.filter(x=>x.id !== f.id); if(fUrl[f.id]){ URL.revokeObjectURL(fUrl[f.id]); delete fUrl[f.id]; }
+  closeViewer(); rerenderFiles(); toast('지웠어요.');
+});
+document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && !$('crPhoto').hidden) closeViewer(); });
+
+// 집 관리 카드의 한 줄 요약
+function photoLine(){
+  const ph = files.filter(f=>f.kind === 'photo');
+  if(!ph.length) return '입주 날 칸마다 찍어 두세요';
+  return PH_PHASE.map(([k, n])=>{ const c = ph.filter(f=>f.phase === k).length; return c ? n + ' ' + c + '장' : ''; }).filter(Boolean).join(' · ');
+}
+function docLine(){
+  const d = files.filter(f=>f.kind === 'doc');
+  if(!d.length) return '계약서·영수증을 사진이나 PDF로 보관해요';
+  const kinds = DOC_TYPES.filter(([k])=>d.some(f=>f.dtype === k)).map(x=>x[1]);
+  return kinds.slice(0, 2).join(' · ') + (kinds.length > 2 ? ' 외' : '') + ' · ' + d.length + '개';
+}
+const HOME_ICON = {
+  pay:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h4"/></svg>',
+  photo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  docs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
+};
+const homeRow = (k, name, sub) => '<button type="button" class="cr-hrow" data-cr="' + k + '"><span class="cr-hi">' + HOME_ICON[k] + '</span><span class="cr-ht"><b>' + name + '</b><span>' + sub + '</span></span>' + ARROW + '</button>';
 
 // 「다가오는 할 일」: 오늘부터의 할 일. 월세·관리비는 다음 한 번만 (24개가 줄줄이 나오지 않게)
 function careUpNext(list, today){
@@ -3076,6 +3350,9 @@ function renderCare(){
   const up = careUpNext(left, today), past = left.filter(e=>e.date < today), day = ev.filter(e=>e.date === selDay);
   // 2026-11-27 사용자 요청: 다가오는 할 일과 월세·관리비를 따로 (월세·관리비는 종류마다 다음 한 번)
   const upTodo = up.filter(e=>!e.pay), upPay = up.filter(e=>e.pay);
+  // C단계: 고른 날 찍은 사진
+  const dph = files.filter(f=>f.kind === 'photo' && f.taken.slice(0, 10) === selDay);
+  const dayPhotos = dph.length ? '<div class="cr-dayph"><p>이날 찍은 사진 ' + dph.length + '장</p><div class="ph-grid">' + dph.map(thumb).join('') + '</div></div>' : '';
   $('pc-body').innerHTML = '<div class="tab-top"></div>' +
     // 2026-11-28 사용자 요청: 처음엔 집 이름·남은 날·막대·양 끝 날짜만. 카드를 누르면 날짜 3개와 버튼이 펼쳐져요
     (S ? '<div class="cr-hero' + (crHeroOpen ? ' open' : '') + '"><button type="button" class="cr-hero-top" data-cr="hero" aria-expanded="' + crHeroOpen + '">' +
@@ -3085,10 +3362,11 @@ function renderCare(){
           '<div class="cr-act"><button type="button" class="cr-edit" data-cr="edit">날짜 고치기</button>' +
           '<button type="button" class="cr-cancel" data-cr="cancel">계약 완료 취소</button></div>' : '') + '</div>'
       : '<div class="card cr-intro"><b>계약을 마쳤나요?</b><p>계약 날짜를 넣으면 꼭 챙길 일정을 달력에 채워 드려요.</p><button type="button" class="cr-sign" data-cr="sign">계약 완료하고 일정 만들기</button></div>') +
-    '<button type="button" class="guide-entry cr-pay" data-cr="pay"><div><b>월세·관리비</b><span>' + payLine(today) + '</span></div>' + ARROW + '</button>' +
+    // 2026-11-28 C단계: 「집 관리」 카드 하나에 월세·관리비 · 방 사진 · 서류 보관함
+    '<div class="grp cr-home-g"><div class="card-t">집 관리</div><div class="card cr-home">' + homeRow('pay', '월세·관리비', payLine(today)) + homeRow('photo', '방 사진', photoLine()) + homeRow('docs', '서류 보관함', docLine()) + '</div></div>' +
     '<div class="grp">' + careCal(ev, today) + '</div>' +
     '<div class="grp"><div class="card-t">' + mdw(selDay) + ' 할 일' + (day.length ? '<small>' + day.length + '개</small>' : '') + '</div>' +
-      '<div class="card">' + (day.length ? day.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">이날 일정이 없어요.</p>') +
+      '<div class="card">' + (day.length ? day.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">이날 일정이 없어요.</p>') + dayPhotos +
       '<button type="button" class="cr-add" data-cr="add">+ 이날 일정 추가</button></div></div>' +
     // 순서: 고른 날(처음엔 오늘) 할 일 → 다가오는 월세·관리비 → 다가오는 할 일 (2026-11-28 사용자 요청)
     (upPay.length ? '<div class="grp"><div class="card-t">다가오는 월세·관리비<small>' + upPay.length + '개</small></div><div class="card">' +
@@ -3170,6 +3448,7 @@ $('pc').addEventListener('click', e=>{
   const t = e.target;
   const ck = t.closest('[data-crdone]');
   if(ck) return careToggle(ck.dataset.crdone);
+  const pv = t.closest('[data-pv]'); if(pv) return openViewer(pv.dataset.pv);
   const op = t.closest('[data-cropen]');
   if(op) return openCareDetail(op.dataset.cropen);
   const day = t.closest('[data-crday]');
@@ -3187,6 +3466,8 @@ $('pc').addEventListener('click', e=>{
   if(act === 'add') openCareAdd();
   if(act === 'icsall') careIcsSave(careUpNext(careAll().filter(x=>!careDone(x)), todayStr()), '집콕체크_계약케어_일정'); // 월세·관리비는 매달 반복 일정 하나로
   if(act === 'pay') openCarePay();
+  if(act === 'photo') go('pph');
+  if(act === 'docs') go('pdc');
   if(act === 'sign') openCareSign('sign');
   if(act === 'edit') openCareSign('edit');
   if(act === 'cancel'){
@@ -3224,8 +3505,8 @@ document.addEventListener('click', e=>{
 });
 
 /* ---------- 화면 전환 (휴대폰 뒤로 가기와 연결) ---------- */
-const ORDER = ['p0','pc','pb','ps','pd','pg','pf','pv','p1','pz','pa','p2','pr','p3'];
-const DEPTH = {p0:0, pc:0, pb:0, ps:0, pd:1, pg:1, pf:1, pv:2, p1:1, pz:2, pa:2, pr:2, p2:2, p3:3};
+const ORDER = ['p0','pc','pb','ps','pd','pg','pph','pdc','pf','pv','p1','pz','pa','p2','pr','p3'];
+const DEPTH = {p0:0, pc:0, pb:0, ps:0, pd:1, pg:1, pph:1, pdc:1, pf:1, pv:2, p1:1, pz:2, pa:2, pr:2, p2:2, p3:3};
 let depth = 0, trail = [], wantTab = null; // trail[i] = 깊이 i+1에 쌓인 화면
 // 결과를 본 질문 이름. 뒤로 가기로 목록에 오면 "확인 완료!" 안내를 한 번 띄우고 지워요
 let doneTag = null, wantList = false;
@@ -3271,6 +3552,8 @@ function paint(id){
   if(id === 'ps') renderServices();
   if(id === 'pr') renderRent();
   if(id === 'pc') renderCare();
+  if(id === 'pph') renderPhotos();
+  if(id === 'pdc') renderDocs();
 }
 function switchTab(id){
   depth = 0; trail = [];
@@ -4842,10 +5125,13 @@ function askAddHouse(name, from){
 }
 // 시작 화면 맨 아래 「기록 모두 지우기」: 한 번 더 묻고 지운 뒤 처음 온 사람 화면을 보여 줘요
 $('wipeAll').addEventListener('click', ()=>{
-  if(!confirm('모든 집의 답, 메모, AI 참고 의견, 현장 질문 체크, 대화 기록, 집 찾기 조건, 계약 케어 일정을 모두 지울까요? 지우면 되돌릴 수 없어요.')) return;
+  if(!confirm('모든 집의 답, 메모, AI 참고 의견, 현장 질문 체크, 대화 기록, 집 찾기 조건, 계약 케어 일정·사진·서류를 모두 지울까요? 지우면 되돌릴 수 없어요.')) return;
   clearAll();
   [VKEY, TKEY, FKEY, STORE, CARE_KEY].forEach(k=>{ try { localStorage.removeItem(k); } catch(e) {} });
   care = {};
+  // C단계: 사진·서류 저장 공간도 지워요
+  (fdbP || Promise.resolve(null)).then(db=>{ if(db) db.close(); try { indexedDB.deleteDatabase(FDB); } catch(e) {} }).catch(()=>{ try { indexedDB.deleteDatabase(FDB); } catch(e) {} });
+  fdbP = null; Object.values(fUrl).forEach(u=>URL.revokeObjectURL(u)); fUrl = {}; files = [];
   houses = {cur:1, list:[{id:1, name:'내 집', answers:{}, ctx:{}}]}; house = houses.list[0]; answers = house.answers; ctx = house.ctx; save(); renderList();
   visit = {asked:{}}; fp = {near:'sinchon', deal:'monthly', dep:'', rent:'', type:'all', wants:[], note:''}; findOut = null;
   Object.assign(T, {phase:'start', text:'', result:null});
@@ -4911,6 +5197,8 @@ renderList();
 renderStart();
 paint(firstTab);
 show(firstTab);
+// C단계: 사진·서류 목록을 불러온 뒤 계약 케어를 다시 그려요
+loadFiles().then(()=>{ if(curView === 'pc') renderCare(); });
 // 오프라인 파일(sw.js): 앱으로 설치했을 때 인터넷이 잠깐 끊겨도 첫 화면이 열리게 (2026-11-21, 실제 사이트(https)에서만)
 if('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
