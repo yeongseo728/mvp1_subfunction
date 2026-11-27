@@ -1445,6 +1445,31 @@
   .cr-dayph{padding:12px 16px 14px;border-top:1px solid var(--ds-divider)}
   .cr-dayph p{font-size:14px;font-weight:600;line-height:20px;color:var(--ds-text-strong);margin-bottom:8px}
   .pv-img{margin-top:12px}
+  /* 계약 케어 E단계: 퇴실 체크리스트 (2026-11-28) */
+  .out-warn{margin-top:12px}
+  .out-warn b,.out-help summary{display:flex;align-items:flex-start;gap:6px}
+  .warn-i{flex:none;width:20px;height:20px;margin-top:2px;color:#B42318}
+  .out-cnt{margin:16px 4px 0;font-size:14px;line-height:20px;color:#5B6475}
+  .out-cnt b{font-weight:600;color:var(--brand)}
+  .out-g{margin-top:16px}
+  .out-it{display:flex;align-items:flex-start;gap:4px;padding:6px 14px 10px 4px}
+  .out-it + .out-it{border-top:1px solid var(--ds-divider)}
+  .out-it .cr-ck{align-self:flex-start}
+  .out-tx{flex:1;min-width:0;padding-top:12px}
+  .out-tx b{display:block;font-size:16px;font-weight:600;line-height:24px;color:var(--ds-text-strong)}
+  .out-tx span{display:block;font-size:14px;line-height:20px;color:var(--ds-text-secondary)}
+  .out-tx em{display:block;font-style:normal;font-size:13px;font-weight:600;line-height:20px;color:var(--brand);margin-top:2px}
+  .out-it.done .out-tx b{color:var(--ds-text-secondary);text-decoration:line-through}
+  .out-go{display:inline-flex;align-items:center;gap:2px;min-height:40px;margin-top:6px;padding:0 12px;border:0;border-radius:10px;background:var(--brand-50);color:var(--brand);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .out-go svg{width:16px;height:16px}
+  .out-help summary{cursor:pointer;min-height:44px;list-style:none;color:#B42318;justify-content:flex-start;align-items:center}
+  .out-help summary::-webkit-details-marker{display:none}
+  .out-steps{padding-top:4px}
+  .out-step{padding:12px 16px 14px}
+  .out-step + .out-step{border-top:1px solid var(--ds-divider)}
+  .out-step b{display:block;font-size:16px;font-weight:600;line-height:24px;color:var(--ds-text-strong)}
+  .out-step > span{display:block;margin:4px 0 10px;font-size:14px;line-height:22px;color:var(--ds-text-primary)}
+  .out-step small{display:block;margin-top:8px;font-size:12px;line-height:18px;color:var(--ds-text-secondary)}
   .pv-img img{display:block;width:100%;max-height:56vh;object-fit:contain;border-radius:12px;background:#000}
 </style>
 </head>
@@ -1502,6 +1527,10 @@
       <section class="view" id="pph" aria-label="방 사진">
         <div class="nav"><button type="button" class="back" data-back aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>뒤로</button><span class="title">방 사진</span><span></span></div>
         <div class="scroll" id="pph-body"></div>
+      </section>
+      <section class="view" id="pout" aria-label="퇴실 체크리스트">
+        <div class="nav"><button type="button" class="back" data-back aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>뒤로</button><span class="title">퇴실 체크리스트</span><span></span></div>
+        <div class="scroll" id="pout-body"></div>
       </section>
       <section class="view" id="pdc" aria-label="서류 보관함">
         <div class="nav"><button type="button" class="back" data-back aria-label="뒤로"><svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>뒤로</button><span class="title">서류 보관함</span><span></span></div>
@@ -3016,6 +3045,7 @@ function openCareDetail(id){
     '<button type="button" class="cd-ics" data-cdo="ics">' + (e.pay ? '휴대폰 달력에 매달 넣기' : '휴대폰 달력에 넣기') + '</button>' +
     (e.pay ? '<button type="button" class="cd-del" data-cdo="pay">월세·관리비 설정·납부 기록</button>' : '') +
     (e.id === 'photo' ? '<button type="button" class="cd-ics" data-cdo="photo" style="margin-top:8px">사진 찍으러 가기</button>' : '') +
+    (e.id === 'end' ? '<button type="button" class="cd-ics" data-cdo="out" style="margin-top:8px">퇴실 체크리스트 보기</button>' : '') +
     (e.own ? '<button type="button" class="cd-del" data-cdo="del">이 일정 지우기</button>' : '');
   $('cd-done').textContent = done ? doneW + ' 취소' : doneW;
   $('cd-done').classList.toggle('sub', done); $('cd-done').classList.toggle('fill', !done);
@@ -3038,6 +3068,7 @@ $('cd-body').addEventListener('click', ev=>{
   if(b.dataset.cdo === 'ics') careIcsSave([e], '집콕체크_' + (e.pay ? '매달_' + PAY_NAME[e.pay] : e.title.replace(/[\\/:*?"<>|\s]+/g, '_')));
   if(b.dataset.cdo === 'pay'){ $('crDetail').hidden = true; openCarePay(); }
   if(b.dataset.cdo === 'photo'){ $('crDetail').hidden = true; phPhase = 'in'; go('pph'); }
+  if(b.dataset.cdo === 'out'){ $('crDetail').hidden = true; go('pout'); }
   if(b.dataset.cdo === 'del'){
     if(!confirm('「' + e.title + '」 일정을 지울까요?')) return;
     care.custom = (care.custom || []).filter(x=>x.id !== e.id);
@@ -3255,9 +3286,75 @@ function docLine(){
 const HOME_ICON = {
   pay:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h4"/></svg>',
   photo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>',
-  docs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>'
+  docs:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  out:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4"/><path d="M10 16l4-4-4-4M14 12H4"/></svg>'
 };
 const homeRow = (k, name, sub) => '<button type="button" class="cr-hrow" data-cr="' + k + '"><span class="cr-hi">' + HOME_ICON[k] + '</span><span class="cr-ht"><b>' + name + '</b><span>' + sub + '</span></span>' + ARROW + '</button>';
+
+/* ---------- 계약 케어 E단계: 퇴실 체크리스트 (2026-11-28 사용자와 정함) ----------
+   나가기 전에 챙길 것을 시점별로 체크해요. 체크한 날짜는 care.out[id]에만 저장해요(이 기기).
+   근거(국가법령정보센터 원문 2026-11-28 확인): 주택임대차보호법 제4조②(보증금 받을 때까지 계약 존속), 제3조의3①⑤⑧(임차권등기명령, 등기 뒤에는 대항요건을 잃어도 권리 유지, 비용 청구),
+   제14조(주택임대차분쟁조정위원회), 민법 제654조→제615조(원상회복). 전입을 옮기지 말라는 안내는 제3조의3⑤에서 나온 안내예요(조문 그대로의 말은 아님). */
+const OUT_LIST = [
+  ['한 달 전', [
+    ['o-notice', '나간다고 알렸는지 확인', '만기 2개월 전까지 알려야 해요. 문자처럼 기록이 남게'],
+    ['o-date', '보증금 받을 날과 계좌를 집주인과 정하기', '이삿날 같은 시간에 받는 게 안전해요'],
+    ['o-mover', '이사 날짜·이사 업체 정하기', '']]],
+  ['일주일 전', [
+    ['o-fee', '관리비 정산 신청', '나가는 날까지 쓴 만큼'],
+    ['o-util', '전기·가스·수도 정산 신청', ''],
+    ['o-net', '인터넷·TV 해지나 이전', ''],
+    ['o-mail', '우편물 주소 바꾸기', '']]],
+  ['나가는 날', [
+    ['o-photo', '퇴실 사진 찍기', '입주 사진과 같은 칸을 찍어 두면 다툼을 막아요', 'photo'],
+    ['o-clean', '짐 다 빼고 원래대로 정리', '나갈 때는 집을 원래 상태로 돌려놓아야 해요(민법 제615조)'],
+    ['o-meter', '계량기 숫자 사진 찍기', '전기·가스·수도'],
+    ['o-key', '보증금 다 받은 것 확인한 뒤 열쇠·도어락 비밀번호 넘기기', '']]],
+  ['보증금 받은 뒤', [
+    ['o-paid', '보증금 다 받았어요', '받은 날이 기록돼요'],
+    ['o-move', '새 집 전입신고', '보증금을 다 받은 뒤에 옮겨요']]]
+];
+const OUT_IDS = OUT_LIST.flatMap(g=>g[1].map(x=>x[0]));
+function outLine(){
+  const o = care.out || {}, n = OUT_IDS.filter(id=>o[id]).length;
+  if(o['o-paid']) return '보증금 받음 · ' + (+o['o-paid'].slice(5, 7)) + '월 ' + (+o['o-paid'].slice(8)) + '일';
+  return n ? OUT_IDS.length + '개 중 ' + n + '개 했어요' : '나가기 전에 챙길 ' + OUT_IDS.length + '가지';
+}
+const WARN_ICON = '<svg class="warn-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 2.5 20h19z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v4.5M12 17.2v.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+function renderOut(){
+  const o = care.out || {}, n = OUT_IDS.filter(id=>o[id]).length;
+  const ck = '<i aria-hidden="true"><svg viewBox="0 0 12 12"><path d="M2.5 6.2l2.3 2.3 4.7-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></i>';
+  $('pout-body').innerHTML =
+    // 주의 상자: 화면을 열면 맨 위에 (사용자 요청)
+    '<div class="urgent out-warn"><b>' + WARN_ICON + '보증금을 다 받거나 임차권등기를 마치기 전에는 전입을 옮기지 마세요</b>옮기면 보증금을 먼저 돌려받을 권리를 잃을 수 있어요. 임차권등기를 마치면 옮겨도 권리가 남아요.</div>' +
+    '<p class="out-cnt">' + OUT_IDS.length + '개 중 <b>' + n + '개</b> 했어요</p>' +
+    OUT_LIST.map(([when, items])=>'<div class="grp out-g"><div class="card-t">' + when + '</div><div class="card">' + items.map(([id, t, sub, go])=>{
+      const d = o[id];
+      return '<div class="out-it' + (d ? ' done' : '') + '"><button type="button" class="cr-ck" data-out="' + id + '" aria-pressed="' + !!d + '" aria-label="' + esc(t) + (d ? ' 했어요 취소' : ' 했어요로 표시') + '">' + ck + '</button>' +
+        '<div class="out-tx"><b>' + esc(t) + '</b>' + (sub ? '<span>' + esc(sub) + '</span>' : '') + (d ? '<em>' + (+d.slice(5, 7)) + '월 ' + (+d.slice(8)) + '일 했어요</em>' : '') +
+        (go === 'photo' ? '<button type="button" class="out-go" data-outgo="photo">방 사진 「퇴실」 칸 열기' + ARROW + '</button>' : '') + '</div></div>';
+    }).join('') + '</div></div>').join('') +
+    // 보증금을 못 받았나요?: 체크리스트 아래, 주의 표시와 함께, 처음엔 접힘
+    '<details class="grp out-help"><summary class="card-t">' + WARN_ICON + '보증금을 못 받았나요?</summary><div class="card out-steps">' +
+      '<div class="out-step"><b>1. 임차권등기명령 신청</b><span>계약이 끝났는데 보증금을 못 받으면 집이 있는 곳의 법원에 신청할 수 있어요. 등기를 마치면 이사·전입을 옮겨도 권리가 남고, 신청에 든 비용은 집주인에게 청구할 수 있어요.</span>' +
+        '<a class="cd-link" href="https://ecfs.scourt.go.kr" target="_blank" rel="noopener">대법원 전자소송에서 신청' + ARROW + '</a><small>주택임대차보호법 제3조의3①⑤⑧</small></div>' +
+      '<div class="out-step"><b>2. 무료 상담 · 분쟁 조정</b><span>보증금 반환 다툼은 주택임대차분쟁조정위원회(대한법률구조공단 등)에서 조정받을 수 있어요.</span>' + helpRows(['klac','seoul']) + '<small>주택임대차보호법 제14조</small></div>' +
+      '<div class="out-step"><b>3. 보증금 반환보증에 가입했다면</b><span>가입한 곳에 바로 알리세요.</span>' + helpRows(['hug']) + '</div>' +
+      '<p class="fh" style="padding:0 16px 14px">계약이 끝나도 보증금을 받을 때까지는 계약이 이어진 것으로 봐요(주택임대차보호법 제4조②).</p>' +
+    '</div></details>' +
+    '<p class="cr-foot">참고용 안내이며 법률 자문이 아니에요. 법 근거는 국가법령정보센터 원문(2026년 11월 확인)이에요. 체크한 기록은 이 휴대폰에만 저장돼요.</p>';
+}
+$('pout-body').addEventListener('click', e=>{
+  const t = e.target;
+  const c = t.closest('[data-out]');
+  if(c){
+    const id = c.dataset.out; care.out = care.out || {};
+    if(care.out[id]) delete care.out[id]; else care.out[id] = todayStr();
+    saveCare(); renderOut();
+    return toast(care.out[id] ? (id === 'o-paid' ? '보증금 받은 날을 기록했어요. 이제 새 집 전입신고를 하세요.' : '했어요!') : '다시 할 일로 돌렸어요.');
+  }
+  if(t.closest('[data-outgo="photo"]')){ phPhase = 'out'; go('pph'); }
+});
 
 // 「다가오는 할 일」: 오늘부터의 할 일. 월세·관리비는 다음 한 번만 (24개가 줄줄이 나오지 않게)
 function careUpNext(list, today){
@@ -3363,7 +3460,7 @@ function renderCare(){
           '<button type="button" class="cr-cancel" data-cr="cancel">계약 완료 취소</button></div>' : '') + '</div>'
       : '<div class="card cr-intro"><b>계약을 마쳤나요?</b><p>계약 날짜를 넣으면 꼭 챙길 일정을 달력에 채워 드려요.</p><button type="button" class="cr-sign" data-cr="sign">계약 완료하고 일정 만들기</button></div>') +
     // 2026-11-28 C단계: 「집 관리」 카드 하나에 월세·관리비 · 방 사진 · 서류 보관함
-    '<div class="grp cr-home-g"><div class="card-t">우리집 관리</div><div class="card cr-home">' + homeRow('pay', '월세·관리비', payLine(today)) + homeRow('photo', '방 사진', photoLine()) + homeRow('docs', '서류 보관함', docLine()) + '</div></div>' +
+    '<div class="grp cr-home-g"><div class="card-t">우리집 관리</div><div class="card cr-home">' + homeRow('pay', '월세·관리비', payLine(today)) + homeRow('photo', '방 사진', photoLine()) + homeRow('docs', '서류 보관함', docLine()) + homeRow('out', '퇴실 체크리스트', outLine()) + '</div></div>' +
     '<div class="grp">' + careCal(ev, today) + '</div>' +
     '<div class="grp"><div class="card-t">' + mdw(selDay) + ' 할 일' + (day.length ? '<small>' + day.length + '개</small>' : '') + '</div>' +
       '<div class="card">' + (day.length ? day.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">이날 일정이 없어요.</p>') + dayPhotos +
@@ -3468,6 +3565,7 @@ $('pc').addEventListener('click', e=>{
   if(act === 'pay') openCarePay();
   if(act === 'photo') go('pph');
   if(act === 'docs') go('pdc');
+  if(act === 'out') go('pout');
   if(act === 'sign') openCareSign('sign');
   if(act === 'edit') openCareSign('edit');
   if(act === 'cancel'){
@@ -3505,8 +3603,8 @@ document.addEventListener('click', e=>{
 });
 
 /* ---------- 화면 전환 (휴대폰 뒤로 가기와 연결) ---------- */
-const ORDER = ['p0','pc','pb','ps','pd','pg','pph','pdc','pf','pv','p1','pz','pa','p2','pr','p3'];
-const DEPTH = {p0:0, pc:0, pb:0, ps:0, pd:1, pg:1, pph:1, pdc:1, pf:1, pv:2, p1:1, pz:2, pa:2, pr:2, p2:2, p3:3};
+const ORDER = ['p0','pc','pb','ps','pd','pg','pph','pdc','pout','pf','pv','p1','pz','pa','p2','pr','p3'];
+const DEPTH = {p0:0, pc:0, pb:0, ps:0, pd:1, pg:1, pph:1, pdc:1, pout:1, pf:1, pv:2, p1:1, pz:2, pa:2, pr:2, p2:2, p3:3};
 let depth = 0, trail = [], wantTab = null; // trail[i] = 깊이 i+1에 쌓인 화면
 // 결과를 본 질문 이름. 뒤로 가기로 목록에 오면 "확인 완료!" 안내를 한 번 띄우고 지워요
 let doneTag = null, wantList = false;
@@ -3554,6 +3652,7 @@ function paint(id){
   if(id === 'pc') renderCare();
   if(id === 'pph') renderPhotos();
   if(id === 'pdc') renderDocs();
+  if(id === 'pout') renderOut();
 }
 function switchTab(id){
   depth = 0; trail = [];
