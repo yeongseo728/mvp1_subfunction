@@ -1290,6 +1290,13 @@
   .cr-hero dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin-top:12px;font-size:15px;line-height:22px}
   .cr-hero dt{color:#C9D5EE;font-weight:400}
   .cr-hero dd{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .cr-hero-top{display:block;width:100%;border:0;background:none;padding:0;margin:0;text-align:left;font:inherit;color:inherit;cursor:pointer}
+  .cr-hero .cr-k{display:block}
+  .cr-hero .cr-prog{margin-top:4px}
+  .cr-tog{display:flex;align-items:center;justify-content:flex-end;gap:2px;min-height:32px;margin-top:4px;font-size:13px;font-weight:600;line-height:20px;color:#C9D5EE}
+  .cr-tog svg{width:16px;height:16px;transition:transform .15s}
+  .cr-hero.open .cr-tog svg{transform:rotate(180deg)}
+  .cr-hero.open dl{margin-top:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.16)}
   .cr-act{display:flex;align-items:center;justify-content:space-between;margin-top:14px}
   .cr-hero .cr-edit{height:40px;padding:0 14px;border:0;border-radius:10px;background:rgba(255,255,255,.14);color:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:transform .1s}
   .cr-hero .cr-edit:active{transform:scale(.96)}
@@ -2764,7 +2771,7 @@ const todayStr = () => dStr(new Date());
 const daysBetween = (a, b) => Math.round((dObj(b) - dObj(a)) / 864e5);
 const WEEK = ['일','월','화','수','목','금','토'];
 const mdw = s => { const d = dObj(s); return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + WEEK[d.getDay()] + ')'; };
-let calMonth = todayStr().slice(0, 7), selDay = todayStr(), crSignFor = null;
+let calMonth = todayStr().slice(0, 7), selDay = todayStr(), crSignFor = null, crHeroOpen = false; // crHeroOpen: 계약한 집 카드 펼침(저장 안 함, 처음엔 접힘)
 
 function careEvents(){
   if(!care.dates) return [];
@@ -3070,10 +3077,13 @@ function renderCare(){
   // 2026-11-27 사용자 요청: 다가오는 할 일과 월세·관리비를 따로 (월세·관리비는 종류마다 다음 한 번)
   const upTodo = up.filter(e=>!e.pay), upPay = up.filter(e=>e.pay);
   $('pc-body').innerHTML = '<div class="tab-top"></div>' +
-    (S ? '<div class="cr-hero"><p class="cr-k">계약한 집</p><h2>' + esc(careHouseName()) + '</h2>' + careProg(today) + '<dl>' +
-        [['계약일', D.contract], ['이삿날', D.move], ['만기일', D.end]].map(([k, s])=>'<dt>' + k + '</dt><dd>' + s.slice(0, 4) + '년 ' + mdw(s) + '</dd>').join('') + '</dl>' +
-        '<div class="cr-act"><button type="button" class="cr-edit" data-cr="edit">날짜 고치기</button>' +
-        '<button type="button" class="cr-cancel" data-cr="cancel">계약 완료 취소</button></div></div>'
+    // 2026-11-28 사용자 요청: 처음엔 집 이름·남은 날·막대·양 끝 날짜만. 카드를 누르면 날짜 3개와 버튼이 펼쳐져요
+    (S ? '<div class="cr-hero' + (crHeroOpen ? ' open' : '') + '"><button type="button" class="cr-hero-top" data-cr="hero" aria-expanded="' + crHeroOpen + '">' +
+        '<span class="cr-k">계약한 집 · ' + esc(careHouseName()) + '</span>' + careProg(today) +
+        '<span class="cr-tog">' + (crHeroOpen ? '접기' : '계약 날짜 보기') + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>' +
+        (crHeroOpen ? '<dl>' + [['계약일', D.contract], ['이삿날', D.move], ['만기일', D.end]].map(([k, s])=>'<dt>' + k + '</dt><dd>' + s.slice(0, 4) + '년 ' + mdw(s) + '</dd>').join('') + '</dl>' +
+          '<div class="cr-act"><button type="button" class="cr-edit" data-cr="edit">날짜 고치기</button>' +
+          '<button type="button" class="cr-cancel" data-cr="cancel">계약 완료 취소</button></div>' : '') + '</div>'
       : '<div class="card cr-intro"><b>계약을 마쳤나요?</b><p>계약 날짜를 넣으면 꼭 챙길 일정을 달력에 채워 드려요.</p><button type="button" class="cr-sign" data-cr="sign">계약 완료하고 일정 만들기</button></div>') +
     '<button type="button" class="guide-entry cr-pay" data-cr="pay"><div><b>월세·관리비</b><span>' + payLine(today) + '</span></div>' + ARROW + '</button>' +
     '<div class="grp">' + careCal(ev, today) + '</div>' +
@@ -3173,6 +3183,7 @@ $('pc').addEventListener('click', e=>{
   }
   const b = t.closest('[data-cr]'); if(!b) return;
   const act = b.dataset.cr;
+  if(act === 'hero'){ crHeroOpen = !crHeroOpen; return renderCare(); }
   if(act === 'add') openCareAdd();
   if(act === 'icsall') careIcsSave(careUpNext(careAll().filter(x=>!careDone(x)), todayStr()), '집콕체크_계약케어_일정'); // 월세·관리비는 매달 반복 일정 하나로
   if(act === 'pay') openCarePay();
