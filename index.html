@@ -3080,11 +3080,12 @@ function renderCare(){
     '<div class="grp"><div class="card-t">' + mdw(selDay) + ' 할 일' + (day.length ? '<small>' + day.length + '개</small>' : '') + '</div>' +
       '<div class="card">' + (day.length ? day.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">이날 일정이 없어요.</p>') +
       '<button type="button" class="cr-add" data-cr="add">+ 이날 일정 추가</button></div></div>' +
+    // 순서: 고른 날(처음엔 오늘) 할 일 → 다가오는 월세·관리비 → 다가오는 할 일 (2026-11-28 사용자 요청)
+    (upPay.length ? '<div class="grp"><div class="card-t">다가오는 월세·관리비<small>' + upPay.length + '개</small></div><div class="card">' +
+      upPay.map(e=>careItem(e, today)).join('') + '<button type="button" class="cr-add" data-cr="pay">납부 기록 보기</button></div></div>' : '') +
     '<div class="grp"><div class="card-t">다가오는 할 일<small>' + upTodo.length + '개</small></div><div class="card">' +
       (upTodo.length ? upTodo.map(e=>careItem(e, today)).join('') : '<p class="cr-empty">' + (ev.length ? '남은 할 일이 없어요.' : '아직 일정이 없어요.') + '</p>') +
       (up.length ? '<button type="button" class="cr-add" data-cr="icsall">남은 할 일 모두 휴대폰 달력에 넣기</button>' : '') + '</div></div>' +
-    (upPay.length ? '<div class="grp"><div class="card-t">다가오는 월세·관리비<small>' + upPay.length + '개</small></div><div class="card">' +
-      upPay.map(e=>careItem(e, today)).join('') + '<button type="button" class="cr-add" data-cr="pay">납부 기록 보기</button></div></div>' : '') +
     (past.length ? '<details class="grp"><summary class="card-t">지난 일정 · 못 한 일<small>' + past.length + '개</small></summary><div class="card">' +
       past.slice().reverse().map(e=>careItem(e, today)).join('') + '</div></details>' : '') +
     (done.length ? '<details class="grp"><summary class="card-t">한 일<small>' + done.length + '개</small></summary><div class="card">' +
